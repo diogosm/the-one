@@ -1,0 +1,65 @@
+Scenario.name = Trabelho_Topicos_Avancados_em_Redes
+Scenario.simulateConnections = false
+Scenario.updateInterval = 0.1
+
+# "Bluetooth" interface for all nodes
+btInterface.type = SimpleBroadcastInterface
+# Transmit speed of 2 Mbps = 250kBps
+btInterface.transmitSpeed = 250k
+btInterface.transmitRange = 1000
+
+# Common settings for all groups
+Group.movementModel = RandomWaypoint
+Group.router = EpidemicRouter
+Group.bufferSize = 5M
+Group.waitTime = 0, 0
+# All nodes have the bluetooth interface
+Group.nrofInterfaces = 1
+Group.interface1 = btInterface
+# Walking speeds
+Group.speed = 0.5, 1.5
+# Message TTL of 300 minutes (5 hours)
+Group.msgTtl = 300
+
+## configuração dos hosts
+Scenario.nrofHostGroups = 1
+Group1.nrofHosts = 3
+Group1.groupID = host
+
+## tempo de simulacao em segundos
+Scenario.endTime = 60 
+
+# How many event generators
+Events.nrof = 2
+
+## trace de contato
+Events1.class = ExternalEventsQueue
+## ExternalEventsQueue.nrofPreload = 1000
+Events1.filePath = traces/traceContato.txt
+
+## trace de mensagem
+Events2.class = ExternalEventsQueue
+Events2.filePath = traces/traceGeracaoMensagens.txt
+
+## tempo de warmup
+MovementModel.warmup = 0
+
+# how many reports to load
+Report.nrofReports = 10
+# length of the warm up period (simulated seconds)
+Report.warmup = 0
+# default directory of reports (can be overridden per Report with output setting)
+# Report.reportDir = reports/Epidemic/10/
+# Report classes to load
+Report.report1 = MessageStatsReport
+Report.report2 = TotalContactTimeReport
+Report.report3 = MessageGraphvizReport
+Report.report4 = InterContactTimesReport
+Report.report5 = DistanceDelayReport
+Report.report6 = DeliveredMessagesReport
+Report.report7 = ContactsPerHourReport
+Report.report8 = ConnectivityONEReport
+Report.report9 = BufferOccupancyReport
+Report.report10 = AdjacencyGraphvizReport
+
+Group.nodeLocation = 50,50
