@@ -1,0 +1,4 @@
+0.00 CONN 0 1 up
+11.00 CONN 0 2 up
+22.00 CONN 2 1 up
+52.00 CONN 2 1 down
