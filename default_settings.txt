@@ -128,11 +128,11 @@ Events1.prefix = M
 
 ## Movement model settings
 # seed for movement models' pseudo random number generator (default = 0)
-MovementModel.rngSeed = 1
+MovementModel.rngSeed = 0
 # World's size for Movement Models without implicit size (width, height; meters)
-MovementModel.worldSize = 4500, 3400
+MovementModel.worldSize = 45, 34
 # How long time to move hosts in the world before real simulation
-MovementModel.warmup = 1000
+MovementModel.warmup = 0
 
 ## Map based movement -movement model specific settings
 MapBasedMovement.nrofMapFiles = 4
