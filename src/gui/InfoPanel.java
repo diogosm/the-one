@@ -89,6 +89,7 @@ public class InfoPanel extends JPanel implements ActionListener{
 		if (ttl != Integer.MAX_VALUE) {
 			txt += " TTL: " + ttl;
 		}
+		txt += " MessageData: " + m.getDados() + " (" + m.getDadosBytes() + ")";
 
 		String butTxt = "path: " + (m.getHops().size()-1) + " hops";
 

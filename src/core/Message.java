@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Random;
 
 /**
  * A message that is created at a node or passed between nodes.
@@ -34,6 +35,9 @@ public class Message implements Comparable<Message> {
 	private double timeCreated;
 	/** Initial TTL of the message */
 	private int initTtl;
+	/** Dados da mensagem */
+	private int dados = -1;
+	private byte dadosBytes;
 
 	/** if a response to this message is required, this is the size of the
 	 * response message (or 0 if no response is requested) */
@@ -80,6 +84,27 @@ public class Message implements Comparable<Message> {
 
 		Message.nextUniqueId++;
 		addNodeOnPath(from);
+
+		/** Cria dados na mensagem */
+		createDados();
+	}
+
+	public void createDados(){
+		Random rng = new Random();
+		if(this.dados == -1){
+			this.dados = rng.nextInt(256);
+			this.dadosBytes = (byte)dados;
+		}
+	}
+
+	public int getDados(){
+		return this.dados;
+	}
+
+	public String getDadosBytes(){
+		// para dados \in [0, 1<<8 - 1]
+		String ans = String.format("%8s", Integer.toBinaryString(this.dadosBytes & 0xFF)).replace(' ', '0');
+		return ans;
 	}
 
 	/**
@@ -262,6 +287,8 @@ public class Message implements Comparable<Message> {
 		this.requestMsg  = m.requestMsg;
 		this.initTtl = m.initTtl;
 		this.appID = m.appID;
+		this.dados = m.dados;
+		this.dadosBytes = m.dadosBytes;
 
 		if (m.properties != null) {
 			Set<String> keys = m.properties.keySet();
