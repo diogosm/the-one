@@ -1,0 +1,93 @@
+# Common settings for all groups
+Group.movementModel = StationaryMovement
+Group.router = EpidemicRouter
+Group.bufferSize = 5M
+Group.waitTime = 0, 120
+# All nodes have the bluetooth interface
+Group.nrofInterfaces = 1
+Group.interface1 = btInterface
+# Walking speeds
+Group.speed = 0.5, 1.5
+# Message TTL of 300 minutes (5 hours)
+Group.msgTtl = 300
+
+## 259200 = 3 dias
+## 604800 = 7 dias
+Scenario.endTime = 259200
+
+## MIT REALITY
+## Group.nrofHosts = 97
+
+## SASSY
+## Group.nrofHosts = 25
+
+## INFOCOM05
+Group.nrofHosts = 41
+
+## DTN HOST REPUTATION SYSTEM
+Group.probCoop = 1.0
+Group.probDetection = 1.0
+Group.probEfficiency = 0.95
+
+## Message creation parameters 
+# How many event generators
+Events.nrof = 2
+
+## trace de contato
+Events1.class = ExternalEventsQueue
+ExternalEventsQueue.nrofPreload = 1000
+
+## MIT REALITY
+## Events1.filePath = mobilidade/reality.txt
+
+## SASSY
+## Events1.filePath = mobilidade/sassy.csv
+
+## INFOCOM05
+Events1.filePath = mobilidade/Haggle3-Infocom5.csv
+
+## criacao de mensagens
+Events2.class = MessageEventGenerator
+Events2.interval = 1800
+Events2.size = 250k, 500k
+
+## MIT REALITY
+## Events2.hosts = 0,97
+
+## SASSY
+## Events2.hosts = 0,25
+
+## INFOCOM05
+Events2.hosts = 0,41
+
+Events2.prefix = M
+Events2.time = 0,4800000
+
+## Movement model settings
+# seed for movement models' pseudo random number generator (default = 0)
+MovementModel.rngSeed = 0
+# How long time to move hosts in the world before real simulation
+MovementModel.warmup = 1000
+
+#########CHANGE#######
+MovementModel.worldSize = 4500, 3400
+Group.nodeLocation = 50,50
+#######END#########
+
+# how many reports to load
+Report.nrofReports = 10
+# length of the warm up period (simulated seconds)
+Report.warmup = 0
+# default directory of reports (can be overridden per Report with output setting)
+# Report.reportDir = reports/Epidemic/10/
+# Report classes to load
+Report.report1 = MessageStatsReport
+Report.report2 = TotalContactTimeReport
+Report.report3 = MessageGraphvizReport
+Report.report4 = InterContactTimesReport
+Report.report5 = DistanceDelayReport
+Report.report6 = DeliveredMessagesReport
+Report.report7 = ContactsPerHourReport
+Report.report8 = ConnectivityONEReport
+Report.report9 = BufferOccupancyReport
+Report.report10 = AdjacencyGraphvizReport
