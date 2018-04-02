@@ -1,0 +1,8 @@
+### FROM S=0 to D=4
+0.00 CONN 0 1 up
+1.00 CONN 0 1 down
+2.00 CONN 1 4 up
+3.00 CONN 1 4 down
+4.00 CONN 0 1 up
+5.00 CONN 0 1 down
+
