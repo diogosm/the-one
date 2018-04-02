@@ -396,8 +396,11 @@ public abstract class MessageRouter {
 
 			//consegui fazer o relay da mensagem, apaga no salto anterior também
 			//adiciona para o controle de congestionamento
-			from.deleteMessage(id, false);
-			this.alreadyRelayedSendedMessages.put(id, aMessage);
+			//so faz se o nó anterior foi a origem da msg
+			if(incoming.getFrom().getAddress() == from.getAddress()){
+				from.deleteMessage(id, false);
+				this.alreadyRelayedSendedMessages.put(id, aMessage);
+			}
 		} else if (isFirstDelivery) {
 			this.deliveredMessages.put(id, aMessage);
 			//se entreguei a mensagem elimnino ela no previous hop

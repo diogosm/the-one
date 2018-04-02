@@ -234,6 +234,10 @@ public abstract class ActiveRouter extends MessageRouter {
 
 		if ( hasMessage(m.getId()) || isDeliveredMessage(m) ||
 				super.isBlacklistedMessage(m.getId())) {
+			if(isDeliveredMessage(m)){
+				//mensagem ja foi entregue, apago do salto anterior
+				from.deleteMessage(m.getId(), false);
+			}
 			return DENIED_OLD; // already seen this message -> reject it
 		}
 
