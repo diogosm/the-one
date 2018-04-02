@@ -250,6 +250,12 @@ public abstract class ActiveRouter extends MessageRouter {
 			return MessageRouter.DENIED_POLICY;
 		}
 
+		if (this.getFreeBufferSize() < m.getSize()){
+			//rejeita mensagem pq ja ta tudo cheio 
+			//faz NC?
+			return DENIED_NO_SPACE;
+		}
+
 		/* remove oldest messages but not the ones being sent */
 		if (!makeRoomForMessage(m.getSize())) {
 			return DENIED_NO_SPACE; // couldn't fit into buffer -> reject

@@ -384,6 +384,7 @@ public abstract class MessageRouter {
 			addToMessages(aMessage, false);
 		} else if (isFirstDelivery) {
 			this.deliveredMessages.put(id, aMessage);
+			from.deleteMessage(id, false);
 		} else if (outgoing == null) {
 			// Blacklist messages that an app wants to drop.
 			// Otherwise the peer will just try to send it back again.
