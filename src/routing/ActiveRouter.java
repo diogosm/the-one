@@ -250,6 +250,11 @@ public abstract class ActiveRouter extends MessageRouter {
 			return MessageRouter.DENIED_POLICY;
 		}
 
+		//controle de congestionamento.. ja estive com essa msg no passado
+		if(super.isAlreadySendedRelayedMessage(m.getId())){
+			return DENIED_ALREADY_RELAYED;
+		}
+
 		if (this.getFreeBufferSize() < m.getSize()){
 			//rejeita mensagem pq ja ta tudo cheio 
 			//faz NC?

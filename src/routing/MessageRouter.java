@@ -79,6 +79,8 @@ public abstract class MessageRouter {
 	public static final int DENIED_LOW_RESOURCES = -4;
 	/** Receive return value for a node low on some resource(s) */
 	public static final int DENIED_POLICY = -5;
+	// retorno de congestion control
+	public static final int DENIED_ALREADY_RELAYED = -6;
 	/** Receive return value for unspecified reason */
 	public static final int DENIED_UNSPECIFIED = -99;
 
@@ -91,6 +93,8 @@ public abstract class MessageRouter {
 	private HashMap<String, Message> deliveredMessages;
 	/** The messages that Applications on this router have blacklisted */
 	private HashMap<String, Object> blacklistedMessages;
+	//mensagens que ja foram passadas por aqui para fazer congestion control
+	private HashMap<String, Object> alreadyRelayedSendedMessages;
 	/** Host where this router belongs to */
 	private DTNHost host;
 	/** size of the buffer */
@@ -155,6 +159,7 @@ public abstract class MessageRouter {
 		this.messages = new HashMap<String, Message>();
 		this.deliveredMessages = new HashMap<String, Message>();
 		this.blacklistedMessages = new HashMap<String, Object>();
+		this.alreadyRelayedSendedMessages = new HashMap<String, Object>();
 		this.mListeners = mListeners;
 		this.host = host;
 	}
@@ -237,6 +242,12 @@ public abstract class MessageRouter {
 	protected boolean isBlacklistedMessage(String id) {
 		return this.blacklistedMessages.containsKey(id);
 	}
+
+	//verifica se a msg ja passou pelo host alguma vez
+	//realizando, assim, o congestion control
+	protected boolean isAlreadySendedRelayedMessage(String id) {
+		return this.alreadyRelayedSendedMessages.containsKey(id);
+	}	
 
 	/**
 	 * Returns a reference to the messages of this router in collection.
@@ -382,8 +393,14 @@ public abstract class MessageRouter {
 			// not the final recipient and app doesn't want to drop the message
 			// -> put to buffer
 			addToMessages(aMessage, false);
+
+			//consegui fazer o relay da mensagem, apaga no salto anterior também
+			//adiciona para o controle de congestionamento
+			from.deleteMessage(id, false);
+			this.alreadyRelayedSendedMessages.put(id, aMessage);
 		} else if (isFirstDelivery) {
 			this.deliveredMessages.put(id, aMessage);
+			//se entreguei a mensagem elimnino ela no previous hop
 			from.deleteMessage(id, false);
 		} else if (outgoing == null) {
 			// Blacklist messages that an app wants to drop.
@@ -486,6 +503,7 @@ public abstract class MessageRouter {
 	public boolean createNewMessage(Message m) {
 		m.setTtl(this.msgTtl);
 		addToMessages(m, true);
+		alreadyRelayedSendedMessages.put(m.getId(), m);
 		return true;
 	}
 

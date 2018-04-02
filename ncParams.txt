@@ -11,7 +11,7 @@ btInterface.transmitRange = 1000
 # Common settings for all groups
 Group.movementModel = RandomWaypoint
 Group.router = EpidemicRouter
-Group.bufferSize = 5M
+Group.bufferSize = 150
 Group.waitTime = 0, 0
 # All nodes have the bluetooth interface
 Group.nrofInterfaces = 1
@@ -22,9 +22,17 @@ Group.speed = 0.5, 1.5
 Group.msgTtl = 300
 
 ## configuração dos hosts
-Scenario.nrofHostGroups = 1
-Group1.nrofHosts = 3
-Group1.groupID = host
+Scenario.nrofHostGroups = 2
+## Grupo 1 eh o nó Source
+Group1.nrofHosts = 1
+Group1.groupID = source
+Group1.bufferSize = 1M
+
+## Grupo 2 são nós intermediarios + Destination (nrofHosts-1)
+Group2.nrofHosts = 4
+Group2.groupID = host
+
+## Host Source tem buffer maior
 
 ## tempo de simulacao em segundos
 Scenario.endTime = 60 
@@ -35,11 +43,11 @@ Events.nrof = 2
 ## trace de contato
 Events1.class = ExternalEventsQueue
 ## ExternalEventsQueue.nrofPreload = 1000
-Events1.filePath = traces/traceContato.txt
+Events1.filePath = traces/traceContatoCenario1.txt
 
 ## trace de mensagem
 Events2.class = ExternalEventsQueue
-Events2.filePath = traces/traceGeracaoMensagens.txt
+Events2.filePath = traces/traceGeracaoMensagensCenario1.txt
 
 ## tempo de warmup
 MovementModel.warmup = 0
