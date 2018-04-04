@@ -1,6 +1,5 @@
 # The ONE forked from official repository
 > antes de começar verifique Issues ou tasks na aba Projects
-===
 
 ## Quer colaborar? Há 2 opções!
 ---
