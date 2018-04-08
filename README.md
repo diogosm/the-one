@@ -1,7 +1,11 @@
-# The ONE forked from official repository
-> antes de começar verifique Issues ou tasks na aba Projects
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-## Quer colaborar? Há 2 opções!
+# The ONE forked from official repository
+> antes de começar verifique Issues ou tasks na aba Projects.
+
+> Enunciado eterno pode ser baixado em: [Trabalho de Tópicos Avançados em Redes](https://github.com/diogosm/the-one/blob/master/Trabalho%20Network%20Coding.pdf)
+
+## Quer colaborar? Há 2 opções! 
 
 - Faça um fork do projeto depois submeta um pull request baseado nas issues;
 
@@ -21,3 +25,4 @@ The [wiki page](https://github.com/akeranen/the-one/wiki) has the latest informa
 
 ## Instruções do Modelo de Simulação
 
+Consulte o Enunciado.
