@@ -22,6 +22,7 @@ import core.SimClock;
 import core.SimError;
 import routing.util.RoutingInfo;
 import util.Tuple;
+import core.Debug;
 
 /**
  * Superclass for message routers.
@@ -361,6 +362,10 @@ public abstract class MessageRouter {
 	 * @return The message that this host received
 	 */
 	public Message messageTransferred(String id, DTNHost from) {
+		//Message incoming = getFromIncomingBuffer(id, from);
+		//se a mensagem é multicast então não removo do buffer de mensagens pra transferir
+		//if(incoming.getReceiversSize() == 0)
+			//incoming = removeFromIncomingBuffer(id, from);
 		Message incoming = removeFromIncomingBuffer(id, from);
 		boolean isFinalRecipient;
 		boolean isFirstDelivery; // is this first delivered instance of the msg
@@ -383,11 +388,21 @@ public abstract class MessageRouter {
 		}
 
 		Message aMessage = (outgoing==null)?(incoming):(outgoing);
-		// If the application re-targets the message (changes 'to')
-		// then the message is not considered as 'delivered' to this host.
-		isFinalRecipient = aMessage.getTo() == this.host;
-		isFirstDelivery = isFinalRecipient &&
-		!isDeliveredMessage(aMessage);
+
+		//Se mensagem é unicast faço o código antigo, senão faço novo código no 'else'
+		if(aMessage.getReceiversSize() == 0){
+
+			// If the application re-targets the message (changes 'to')
+			// then the message is not considered as 'delivered' to this host.
+			isFinalRecipient = aMessage.getTo() == this.host;
+			isFirstDelivery = isFinalRecipient &&
+			!isDeliveredMessage(aMessage);
+		}else{
+			//mensagem tem múltiplos destinatários
+			isFinalRecipient = aMessage.getReceivers().contains(this.host);
+			isFirstDelivery = isFinalRecipient &&
+			!isDeliveredMessage(aMessage);
+		}
 
 		if (!isFinalRecipient && outgoing!=null) {
 			// not the final recipient and app doesn't want to drop the message
@@ -397,14 +412,28 @@ public abstract class MessageRouter {
 			//consegui fazer o relay da mensagem, apaga no salto anterior também
 			//adiciona para o controle de congestionamento
 			//so faz se o nó anterior foi a origem da msg
-			if(incoming.getFrom().getAddress() == from.getAddress()){
+			//@TODO verificar se isso é util
+			//@TODO verificar random shuffle para o relay de mensagens
+			/*
+			if(aMessage.getFrom().getAddress() == from.getAddress()){
 				from.deleteMessage(id, false);
 				this.alreadyRelayedSendedMessages.put(id, aMessage);
-			}
-		} else if (isFirstDelivery) {
+			}*/
+		} else if (isFirstDelivery && aMessage.getReceiversSize()==0) {
 			this.deliveredMessages.put(id, aMessage);
 			//se entreguei a mensagem elimnino ela no previous hop
-			from.deleteMessage(id, false);
+			//@TODO use isto apenas quando necessário
+			//from.deleteMessage(id, false);
+
+			Debug.p("[Node " + this.getHost().toString() + "] Mensagem " + 
+				aMessage.getId() + " unicast transferida" + 
+				" por " + from.toString());
+		} else if (isFirstDelivery) { 
+			this.deliveredMessages.put(id, aMessage);
+
+			Debug.p("[Node " + this.getHost().toString() + "] Mensagem " + 
+				aMessage.getId() + " multicast transferida" + 
+				" por " + from.toString());
 		} else if (outgoing == null) {
 			// Blacklist messages that an app wants to drop.
 			// Otherwise the peer will just try to send it back again.
@@ -440,6 +469,10 @@ public abstract class MessageRouter {
 		return this.incomingMessages.remove(id + "_" + from.toString());
 	}
 
+	protected Message getFromIncomingBuffer(String id, DTNHost from) {
+		return this.incomingMessages.get(id + "_" + from.toString());
+	}
+
 	/**
 	 * Returns true if a message with the given ID is one of the
 	 * currently incoming messages, false if not
@@ -473,6 +506,7 @@ public abstract class MessageRouter {
 	 * @return The removed message or null if message for the ID wasn't found
 	 */
 	protected Message removeFromMessages(String id) {
+		Debug.p("show");
 		Message m = this.messages.remove(id);
 		return m;
 	}
@@ -506,7 +540,7 @@ public abstract class MessageRouter {
 	public boolean createNewMessage(Message m) {
 		m.setTtl(this.msgTtl);
 		addToMessages(m, true);
-		alreadyRelayedSendedMessages.put(m.getId(), m);
+		//alreadyRelayedSendedMessages.put(m.getId(), m);
 		return true;
 	}
 
@@ -519,13 +553,13 @@ public abstract class MessageRouter {
 	 * because it was delivered to final destination.
 	 */
 	public void deleteMessage(String id, boolean drop) {
-		Message removed = removeFromMessages(id);
+		/*Message removed = removeFromMessages(id);
 		if (removed == null) throw new SimError("no message for id " +
 				id + " to remove at " + this.host);
 
 		for (MessageListener ml : this.mListeners) {
 			ml.messageDeleted(removed, this.host, drop);
-		}
+		}*/
 	}
 
 	/**

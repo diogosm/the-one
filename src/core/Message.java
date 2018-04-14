@@ -93,6 +93,7 @@ public class Message implements Comparable<Message> {
 	}
 
 	//construtor de mensagem multicast
+	//é chamado quando número de receivers > 1
 	public Message(DTNHost from, DTNHost to, String id, int size, ArrayList<DTNHost> receivers) {
 		this.from = from;
 		this.to = to;
@@ -421,6 +422,7 @@ public class Message implements Comparable<Message> {
 		this.appID = appID;
 	}
 
+	/** se this.getReceiversSize() > 0 então a mensagem é multicast */
 	public int getReceiversSize(){
 		return this.receivers.size();
 	}

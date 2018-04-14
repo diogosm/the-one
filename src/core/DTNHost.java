@@ -12,6 +12,7 @@ import movement.MovementModel;
 import movement.Path;
 import routing.MessageRouter;
 import routing.util.RoutingInfo;
+import core.Debug;
 
 import static core.Constants.DEBUG;
 
