@@ -5,6 +5,8 @@
 
 > Enunciado eterno pode ser baixado em: [Trabalho de Tópicos Avançados em Redes](https://github.com/diogosm/the-one/blob/master/Trabalho%20Network%20Coding.pdf)
 
+> Slide de network coding: [Slide Network Coding](https://github.com/diogosm/the-one/blob/master/Trabalho%20Network%20Coding.pdf)
+
 ## Quer colaborar? Há 2 opções! 
 
 - Faça um fork do projeto depois submeta um pull request baseado nas issues;
