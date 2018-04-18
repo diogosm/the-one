@@ -365,7 +365,8 @@ public abstract class MessageRouter {
 		//Message incoming = getFromIncomingBuffer(id, from);
 		//se a mensagem é multicast então não removo do buffer de mensagens pra transferir
 		//if(incoming.getReceiversSize() == 0)
-			//incoming = removeFromIncomingBuffer(id, from);
+		//	incoming = removeFromIncomingBuffer(id, from);
+		//else	incoming = getFromIncomingBuffer(id, from);
 		Message incoming = removeFromIncomingBuffer(id, from);
 		boolean isFinalRecipient;
 		boolean isFirstDelivery; // is this first delivered instance of the msg
@@ -425,15 +426,17 @@ public abstract class MessageRouter {
 			//@TODO use isto apenas quando necessário
 			//from.deleteMessage(id, false);
 
-			Debug.p("[Node " + this.getHost().toString() + "] Mensagem " + 
+			/*Debug.p("[Node " + this.getHost().toString() + "] Mensagem " + 
 				aMessage.getId() + " unicast transferida" + 
-				" por " + from.toString());
+				" por " + from.toString());*/
 		} else if (isFirstDelivery) { 
 			this.deliveredMessages.put(id, aMessage);
+			//múltiplos destinatários, então armazeno no buffer de mensagens
+			addToMessages(aMessage, false);
 
-			Debug.p("[Node " + this.getHost().toString() + "] Mensagem " + 
+			/*Debug.p("[Node " + this.getHost().toString() + "] Mensagem " + 
 				aMessage.getId() + " multicast transferida" + 
-				" por " + from.toString());
+				" por " + from.toString());*/
 		} else if (outgoing == null) {
 			// Blacklist messages that an app wants to drop.
 			// Otherwise the peer will just try to send it back again.
