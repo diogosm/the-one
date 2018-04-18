@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
+import java.util.Arrays;
 
 import core.SimError;
 
@@ -109,6 +110,8 @@ public class StandardEventsReader implements ExternalEventsReader {
 			String msgId;
 			int hostAddr;
 			int host2Addr;
+			String hostsTo;
+			int[] hostsToInt = new int[0];
 
 			try {
 				time = lineScan.nextDouble();
@@ -158,8 +161,23 @@ public class StandardEventsReader implements ExternalEventsReader {
 					msgId = lineScan.next();
 					hostAddr = getHostAddress(lineScan.next());
 
-					host2Addr = getHostAddress(lineScan.next());
+					//host2Addr = getHostAddress(lineScan.next());
+					/** verifica se é multicast **/
+					hostsTo = lineScan.next();
 
+					if(!hostsTo.contains(",")) host2Addr = Integer.parseInt(hostsTo);
+					else{
+						String[] hostsToSendMessage = hostsTo.split(",");
+						hostsToInt = new int[hostsToSendMessage.length];
+						for(int i = 0;i<hostsToSendMessage.length;i++){
+							hostsToInt[i] = Integer.parseInt(hostsToSendMessage[i]);
+						}
+						// gambi pra nao precisar refatorar muito do código
+						//@TODO melhorar isso no futuro e refatorar bonitinho
+						host2Addr = hostsToInt[0];
+					}
+
+					//@TODO apenas suporta criação de mensagens
 					if (action.equals(CREATE)){
 						int size = 0;
 
@@ -179,8 +197,12 @@ public class StandardEventsReader implements ExternalEventsReader {
 						else if(lineScan.hasNext()) {
 							respSize = convertToInteger(lineScan.next());
 						}
-						events.add(new MessageCreateEvent(hostAddr, host2Addr,
-								msgId, size, respSize, time));
+						if(!hostsTo.contains(","))
+							events.add(new MessageCreateEvent(hostAddr, host2Addr,
+									msgId, size, respSize, time));
+						else if(hostsToInt.length>0)
+							events.add(new MessageCreateEvent(hostAddr, host2Addr,
+									msgId, size, respSize, time, hostsToInt));
 					}
 					else {
 						int stage = -1;

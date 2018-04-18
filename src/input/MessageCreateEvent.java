@@ -7,6 +7,7 @@ package input;
 import core.DTNHost;
 import core.Message;
 import core.World;
+import java.util.ArrayList;
 
 /**
  * External event for creating a message.
@@ -14,6 +15,8 @@ import core.World;
 public class MessageCreateEvent extends MessageEvent {
 	private int size;
 	private int responseSize;
+	private int[] hostsToList;
+	private boolean isMulticast = false;
 
 	/**
 	 * Creates a message creation event with a optional response request
@@ -32,6 +35,16 @@ public class MessageCreateEvent extends MessageEvent {
 		this.responseSize = responseSize;
 	}
 
+	//construtor para multicast
+	public MessageCreateEvent(int from, int to, String id, int size,
+			int responseSize, double time, int[] hostsToList) {
+		super(from,to, id, time);
+		this.size = size;
+		this.responseSize = responseSize;
+		this.hostsToList = hostsToList;
+		this.isMulticast = true;
+	}
+
 
 	/**
 	 * Creates the message this event represents.
@@ -41,9 +54,23 @@ public class MessageCreateEvent extends MessageEvent {
 		DTNHost to = world.getNodeByAddress(this.toAddr);
 		DTNHost from = world.getNodeByAddress(this.fromAddr);
 
-		Message m = new Message(from, to, this.id, this.size);
-		m.setResponseSize(this.responseSize);
-		from.createNewMessage(m);
+		//old version
+		if(!this.isMulticast){
+			Message m = new Message(from, to, this.id, this.size);
+			m.setResponseSize(this.responseSize);
+			from.createNewMessage(m);
+		}else{	//faz multicast
+			ArrayList<DTNHost> receivers = new ArrayList<DTNHost>();
+
+			for(int i = 0;i<this.hostsToList.length;i++){
+				DTNHost aux = world.getNodeByAddress(this.hostsToList[i]);
+				receivers.add(aux);
+			}
+
+			Message m = new Message(from, to, this.id, this.size, receivers);
+			m.setResponseSize(this.responseSize);
+			from.createNewMessage(m);
+		}
 	}
 
 	@Override

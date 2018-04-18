@@ -38,6 +38,9 @@ public class Message implements Comparable<Message> {
 	/** Dados da mensagem */
 	private int dados = -1;
 	private byte dadosBytes;
+	/** Destinatarios de mensagem
+		Usado apenas para mensagens multicast **/
+	private ArrayList<DTNHost> receivers = new ArrayList<DTNHost>();
 
 	/** if a response to this message is required, this is the size of the
 	 * response message (or 0 if no response is requested) */
@@ -81,6 +84,33 @@ public class Message implements Comparable<Message> {
 		this.requestMsg = null;
 		this.properties = null;
 		this.appID = null;
+
+		Message.nextUniqueId++;
+		addNodeOnPath(from);
+
+		/** Cria dados na mensagem */
+		createDados();
+	}
+
+	//construtor de mensagem multicast
+	//é chamado quando número de receivers > 1
+	public Message(DTNHost from, DTNHost to, String id, int size, ArrayList<DTNHost> receivers) {
+		this.from = from;
+		this.to = to;
+		this.id = id;
+		this.size = size;
+		this.path = new ArrayList<DTNHost>();
+		this.uniqueId = nextUniqueId;
+
+		this.timeCreated = SimClock.getTime();
+		this.timeReceived = this.timeCreated;
+		this.initTtl = INFINITE_TTL;
+		this.responseSize = 0;
+		this.requestMsg = null;
+		this.properties = null;
+		this.appID = null;
+
+		this.receivers = receivers;
 
 		Message.nextUniqueId++;
 		addNodeOnPath(from);
@@ -289,6 +319,7 @@ public class Message implements Comparable<Message> {
 		this.appID = m.appID;
 		this.dados = m.dados;
 		this.dadosBytes = m.dadosBytes;
+		this.receivers = m.receivers;
 
 		if (m.properties != null) {
 			Set<String> keys = m.properties.keySet();
@@ -353,7 +384,11 @@ public class Message implements Comparable<Message> {
 	 * @return A replicate of the message
 	 */
 	public Message replicate() {
-		Message m = new Message(from, to, id, size);
+		Message m;
+		if(this.receivers.size()>0)
+			m = new Message(from, to, id, size, receivers);
+		else
+			m = new Message(from, to, id, size);
 		m.copyFrom(this);
 		return m;
 	}
@@ -385,6 +420,15 @@ public class Message implements Comparable<Message> {
 	 */
 	public void setAppID(String appID) {
 		this.appID = appID;
+	}
+
+	/** se this.getReceiversSize() > 0 então a mensagem é multicast */
+	public int getReceiversSize(){
+		return this.receivers.size();
+	}
+
+	public ArrayList<DTNHost> getReceivers(){
+		return this.receivers;
 	}
 
 }

@@ -1,0 +1,6 @@
+#TIME	TYPE	MESSAGE_ID	FROM	TO	SIZE_BYTES
+0.0	C	Message1	0	1,2,3,4	100
+0.0	C	Message2	0	1,2,3,4	100
+0.0	C	Message3	0	1,2,3,4	100
+0.0	C	Message4	0	1,2,3,4	100
+0.0	C	Message5	0	1,2,3,4	100

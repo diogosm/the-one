@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collections;
 import java.util.Vector;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -83,8 +84,24 @@ public class InfoPanel extends JPanel implements ActionListener{
 
 	private void setMessageInfo(Message m) {
 		int ttl = m.getTtl();
-		String txt = " [" + m.getFrom() + "->" + m.getTo() + "] " +
-				"size:" + m.getSize() + ", UI:" + m.getUniqueId() +
+		String txt;
+
+		txt = " [" + m.getFrom() + "->";
+
+		//Se for multicast escreve destinatarios no painel
+		if(m.getReceiversSize()>0){
+			ArrayList<DTNHost> hosts = m.getReceivers();
+			txt += " [";
+			for(int i = 0;i<hosts.size();i++){
+				if(i>0) txt+=",";
+				txt += hosts.get(i);
+			}
+			txt += "] ] ";
+		}else{
+			txt += m.getTo() + "] ";
+		}
+		
+		txt += "size:" + m.getSize() + ", UI:" + m.getUniqueId() +
 				", received @ " + String.format("%.2f", m.getReceiveTime());
 		if (ttl != Integer.MAX_VALUE) {
 			txt += " TTL: " + ttl;

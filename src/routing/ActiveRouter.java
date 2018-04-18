@@ -22,6 +22,7 @@ import core.MessageListener;
 import core.NetworkInterface;
 import core.Settings;
 import core.SimClock;
+import core.Debug;
 
 /**
  * Superclass of active routers. Contains convenience methods (e.g.
@@ -234,9 +235,10 @@ public abstract class ActiveRouter extends MessageRouter {
 
 		if ( hasMessage(m.getId()) || isDeliveredMessage(m) ||
 				super.isBlacklistedMessage(m.getId())) {
-			if(isDeliveredMessage(m)){
+			if(isDeliveredMessage(m) && m.getReceiversSize() == 0){
 				//mensagem ja foi entregue, apago do salto anterior
-				from.deleteMessage(m.getId(), false);
+				//@TODO verificar se isso é util no futuro
+				//from.deleteMessage(m.getId(), false);
 			}
 			return DENIED_OLD; // already seen this message -> reject it
 		}
@@ -255,13 +257,12 @@ public abstract class ActiveRouter extends MessageRouter {
 		}
 
 		//controle de congestionamento.. ja estive com essa msg no passado
+		//@TODO verificar se isso é util no futuro
 		if(super.isAlreadySendedRelayedMessage(m.getId())){
 			return DENIED_ALREADY_RELAYED;
 		}
 
 		if (this.getFreeBufferSize() < m.getSize()){
-			//rejeita mensagem pq ja ta tudo cheio 
-			//faz NC?
 			return DENIED_NO_SPACE;
 		}
 
@@ -373,7 +374,7 @@ public abstract class ActiveRouter extends MessageRouter {
 		for (Message m : getMessageCollection()) {
 			for (Connection con : getConnections()) {
 				DTNHost to = con.getOtherNode(getHost());
-				if (m.getTo() == to) {
+				if (m.getTo() == to || m.getReceivers().contains(to)) {
 					forTuples.add(new Tuple<Message, Connection>(m,con));
 				}
 			}
