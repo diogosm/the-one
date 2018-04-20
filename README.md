@@ -13,9 +13,21 @@
 
 - Crie uma issue pedindo para adicionar como colaborador do projeto.
 
-## Network Coding testing... 
+## Network Coding Algorithms
 
-The Opportunistic Network Environment simulator.
+### XOR algorithm
+
+> Fase de codificação (flowchart)
+
+![xor network coding - codification phase2](https://user-images.githubusercontent.com/1641686/39056492-d2c82370-4484-11e8-82dc-25de4f4785b9.png)
+
+> Fase de decodificação
+
+@TODO
+
+### (Random) Linear Network Coding algorithm
+
+> Detalhes da implementação veja [Slides de Linear Network Coding](https://github.com/diogosm/the-one/blob/master/Slide_Network_Coding_2018(1).pdf).
 
 ## Instruções básicas
 
