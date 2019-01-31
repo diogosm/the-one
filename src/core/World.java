@@ -8,10 +8,15 @@ import input.EventQueue;
 import input.ExternalEvent;
 import input.ScheduledUpdatesQueue;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+
+import org.apache.commons.collections15.Transformer;
+import edu.uci.ics.jung.algorithms.importance.BetweennessCentrality;
+import edu.uci.ics.jung.graph.DirectedSparseGraph;
+import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.graph.util.EdgeType;
+import core.Graph_Algos;
+
 
 /**
  * World contains all the nodes and is responsible for updating their
@@ -57,6 +62,13 @@ public class World {
 	private ScheduledUpdatesQueue scheduledUpdates;
 	private boolean simulateConOnce;
 
+	public static Graph_Algos GA1;
+	public static LinkedList<String> Distinct_Vertex;
+	public static LinkedList<String> Source_Vertex;
+	public static LinkedList<String> Target_Vertex;
+	public static LinkedList<Double> Edge_Weight;
+	public static HashMap<String, ArrayList<String> > mappedEdges;
+
 	/**
 	 * Constructor.
 	 */
@@ -77,6 +89,17 @@ public class World {
 
 		setNextEventQueue();
 		initSettings();
+
+		GA1 = new Graph_Algos();
+		Distinct_Vertex = new LinkedList<String>();
+		Source_Vertex = new LinkedList<String>();
+		Target_Vertex = new LinkedList<String>();
+		Edge_Weight = new LinkedList<Double>();
+		mappedEdges = new HashMap<String, ArrayList<String>>();
+
+		for(DTNHost host : this.hosts){
+			Distinct_Vertex.add(host.toString());
+		}
 	}
 
 	/**
@@ -271,5 +294,42 @@ public class World {
 	 */
 	public void scheduleUpdate(double simTime) {
 		scheduledUpdates.addUpdate(simTime);
+	}
+
+	public static void addGrafo(DTNHost host, DTNHost otherHost) {
+		ArrayList<String> aux;
+
+		if(mappedEdges.containsKey(host.toString())){
+			aux = mappedEdges.get(host.toString());
+
+			for(String node : aux){
+				if(otherHost.toString() == node){
+					Debug.p("Dois nós iguais " + node + " otherHost " + otherHost.toString());
+					return;
+				}else
+					Debug.p("Dois nós NÃO iguais " + node + " otherHost " + otherHost.toString());
+			}
+
+			aux.add(otherHost.toString());
+			mappedEdges.remove(host.toString());
+			mappedEdges.put(host.toString(), aux);
+
+			Source_Vertex.add(host.toString());
+			Target_Vertex.add(otherHost.toString());
+			Edge_Weight.add(1.0);
+		} else{
+			aux = new ArrayList<String>();
+			aux.add(otherHost.toString());
+
+			mappedEdges.put(host.toString(), aux);
+
+			Source_Vertex.add(host.toString());
+			Target_Vertex.add(otherHost.toString());
+			Edge_Weight.add(1.0);
+		}
+
+		//Debug.p("WORLD GRAPH " + GA1);
+		GA1.BetweenNess_Centrality_Score(Distinct_Vertex, Source_Vertex, Target_Vertex, Edge_Weight);
+
 	}
 }

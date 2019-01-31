@@ -3,9 +3,9 @@
 #
 
 ## Scenario settings
-Scenario.name = default_scenario
-Scenario.simulateConnections = true
-Scenario.updateInterval = 0.1
+Scenario.name = teste
+Scenario.simulateConnections = false
+Scenario.updateInterval = 1
 # 43200s == 12h
 Scenario.endTime = 43200
 
@@ -28,7 +28,7 @@ highspeedInterface.transmitSpeed = 10M
 highspeedInterface.transmitRange = 1000
 
 # Define 6 different node groups
-Scenario.nrofHostGroups = 6
+Scenario.nrofHostGroups = 1
 
 ## Group-specific settings:
 # groupID : Group's identifier. Used as the prefix of host names
@@ -51,19 +51,29 @@ Scenario.nrofHostGroups = 6
 
 
 # Common settings for all groups
-Group.movementModel = ShortestPathMapBasedMovement
-Group.router = EpidemicRouter
+Group.movementModel = RandomWaypoint
+
+## Utilizacao do novo algoritmo de roteamento
+## Group.router = EpidemicRouter
+
+#############################
+######## SWORDFISH ##########
+#############################
+Group.router = Swordfish
+
+## RoteamentoAmigos.grafo = mobilidade/grafo.txt
+
 Group.bufferSize = 5M
 Group.waitTime = 0, 120
 # All nodes have the bluetooth interface
 Group.nrofInterfaces = 1
-Group.interface1 = btInterface
+Group.interface1 = highspeedInterface
 # Walking speeds
 Group.speed = 0.5, 1.5
 # Message TTL of 300 minutes (5 hours)
 Group.msgTtl = 300
 
-Group.nrofHosts = 40
+Group.nrofHosts = 9
 
 # group1 (pedestrians) specific settings
 Group1.groupID = p
@@ -112,7 +122,7 @@ Group6.nrofHosts = 2
 
 ## Message creation parameters
 # How many event generators
-Events.nrof = 1
+Events.nrof = 2
 # Class of the first event generator
 Events1.class = MessageEventGenerator
 # (following settings are specific for the MessageEventGenerator class)
@@ -121,16 +131,19 @@ Events1.interval = 25,35
 # Message sizes (500kB - 1MB)
 Events1.size = 500k,1M
 # range of message source/destination addresses
-Events1.hosts = 0,126
+Events1.hosts = 0,3
 # Message ID prefix
-Events1.prefix = M
+Events1.prefix = Message
 
+# Trace de mobilidade real
+Events2.class = ExternalEventsQueue
+Events2.filePath = mobilidade/trace_contato.txt
 
 ## Movement model settings
 # seed for movement models' pseudo random number generator (default = 0)
-MovementModel.rngSeed = 0
+MovementModel.rngSeed = 1
 # World's size for Movement Models without implicit size (width, height; meters)
-MovementModel.worldSize = 45, 34
+MovementModel.worldSize = 450, 340
 # How long time to move hosts in the world before real simulation
 MovementModel.warmup = 0
 
