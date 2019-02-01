@@ -397,7 +397,7 @@ public abstract class ActiveRouter extends MessageRouter {
 	  * for receiving (or doesn't accept any). If a transfer is started, the
 	  * connection is included in the list of sending connections.
 	  * @param con Connection trough which the messages are sent
-	  * @param messages A list of messages to try
+	  * @param messages A list of messagtryAllMessagesToAllConnectionses to try
 	  * @return The message whose transfer was started or null if no
 	  * transfer was started.
 	  */
