@@ -68,6 +68,10 @@ public class World {
 	public static LinkedList<String> Target_Vertex;
 	public static LinkedList<Double> Edge_Weight;
 	public static HashMap<String, ArrayList<String> > mappedEdges;
+	public static boolean grafo[][];
+	public static int numNodes;
+	//lista de LCC pra cada node
+	public static ArrayList<Double> LCC;
 
 	/**
 	 * Constructor.
@@ -100,6 +104,15 @@ public class World {
 		for(DTNHost host : this.hosts){
 			Distinct_Vertex.add(host.toString());
 		}
+
+		numNodes = this.hosts.size();
+		grafo = new boolean[this.hosts.size()][this.hosts.size()];
+		for(int i = 0;i<this.hosts.size();i++)
+			for(int j = 0;j<this.hosts.size();j++)
+				grafo[i][j] = false;
+
+		LCC = new ArrayList<Double>();
+		for(int i = 0;i<this.hosts.size();i++) LCC.add(0.0);
 	}
 
 	/**
@@ -299,15 +312,19 @@ public class World {
 	public static void addGrafo(DTNHost host, DTNHost otherHost) {
 		ArrayList<String> aux;
 
+		//add true no grafo
+		//Debug.p("[" + host.getAddress() + "] <--> [" + otherHost.getAddress() + "]");
+		grafo[host.getAddress()][otherHost.getAddress()] = true;
+
 		if(mappedEdges.containsKey(host.toString())){
 			aux = mappedEdges.get(host.toString());
 
 			for(String node : aux){
 				if(otherHost.toString() == node){
-					Debug.p("Dois nós iguais " + node + " otherHost " + otherHost.toString());
+					//Debug.p("Dois nós iguais " + node + " otherHost " + otherHost.toString());
 					return;
-				}else
-					Debug.p("Dois nós NÃO iguais " + node + " otherHost " + otherHost.toString());
+				}else continue;
+					//Debug.p("Dois nós NÃO iguais " + node + " otherHost " + otherHost.toString());
 			}
 
 			aux.add(otherHost.toString());
@@ -329,7 +346,58 @@ public class World {
 		}
 
 		//Debug.p("WORLD GRAPH " + GA1);
+		//calcula betweenness
 		GA1.BetweenNess_Centrality_Score(Distinct_Vertex, Source_Vertex, Target_Vertex, Edge_Weight);
 
+		printaGrafo();
+		calculaLCC();
+	}
+
+	public static void calculaLCC(){
+		for(int i = 0;i<numNodes;i++){
+			int grau = 0;
+			int Li = 0;
+			for(int j = 0;j<numNodes;j++)
+				if(grafo[i][j]) grau++;
+
+			ArrayList<Integer> vizinhos = new ArrayList<Integer>();
+			for(int j = 0;j<numNodes;j++)
+				if(grafo[i][j]) vizinhos.add(j);
+
+			for(int j = 0;j<vizinhos.size()-1;j++){
+				for(int k = 0;k<vizinhos.size();k++){
+					if(grafo[vizinhos.get(j)][vizinhos.get(k)]) Li++;
+				}
+			}
+
+			Double LCC_i = (2.0 * (double) Li) / ((double)(grau * (grau-1)));
+			LCC.set(i,LCC_i);
+
+			/*if(i == 3){
+				//debug do no 3
+				Debug.p("Grau: " + grau);
+				Debug.p("Li: " + Li);
+				Debug.p("LCC_3: " + LCC_i);
+			}*/
+		}
+
+		Debug.p("LCC:");
+		for(int i = 0;i<numNodes;i++){
+			Debug.p("["+i+"] = " + LCC.get(i));
+		}
+		Debug.p("");
+	}
+
+	public static void printaGrafo(){
+		Debug.p("[" + SimClock.getTime()+ "] Grafo:");
+		for(int i = 0;i<numNodes;i++){
+			System.out.print("Node " + i + "\t");
+			for(int j = 0;j<numNodes;j++){
+				if(j>0) System.out.print(" ");
+				System.out.print(grafo[i][j] == true ? 1 : 0);
+			}
+			System.out.println();
+		}
+		System.out.println();
 	}
 }
