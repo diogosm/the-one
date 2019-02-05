@@ -70,8 +70,14 @@ public class World {
 	public static HashMap<String, ArrayList<String> > mappedEdges;
 	public static boolean grafo[][];
 	public static int numNodes;
+	//lista Betweenness pra cada node
+	public static ArrayList<Double> B_i;
 	//lista de LCC pra cada node
 	public static ArrayList<Double> LCC;
+	//resultado GAME
+	public static ArrayList<Double> PG_i;
+	//resultado SWORDFISH
+	public static ArrayList<Double> PS_i;
 
 	/**
 	 * Constructor.
@@ -111,8 +117,15 @@ public class World {
 			for(int j = 0;j<this.hosts.size();j++)
 				grafo[i][j] = false;
 
+		B_i = new ArrayList<Double>();
 		LCC = new ArrayList<Double>();
 		for(int i = 0;i<this.hosts.size();i++) LCC.add(0.0);
+
+		//inicializa algoritmo
+		PG_i = new ArrayList<Double>();
+		PS_i = new ArrayList<Double>();
+		for(int i = 0;i<this.hosts.size();i++)
+			PG_i.add(0.0); PS_i.add(0.0);
 	}
 
 	/**
@@ -347,10 +360,82 @@ public class World {
 
 		//Debug.p("WORLD GRAPH " + GA1);
 		//calcula betweenness
-		GA1.BetweenNess_Centrality_Score(Distinct_Vertex, Source_Vertex, Target_Vertex, Edge_Weight);
+		B_i = GA1.BetweenNess_Centrality_Score(Distinct_Vertex, Source_Vertex, Target_Vertex, Edge_Weight);
 
 		printaGrafo();
 		calculaLCC();
+		GAME();
+		SWORDFISH();
+	}
+
+	/*
+		PG_i = log2(1 + B_i/max(B))
+	 */
+	public static void GAME(){
+		Double maxB = -9999999.9;
+
+		for(int i = 0;i<numNodes;i++){
+			if(B_i.get(i) != null && B_i.get(i) > maxB)
+					maxB = B_i.get(i);
+		}
+
+		//PARA DEBUG
+		Debug.p("Maior Betweenness: " + maxB);
+
+		for(int i = 0;i<numNodes;i++){
+			Debug.p("B[" + i + "] = " + B_i.get(i));
+		}
+		Debug.p("");
+
+		for(int i = 0;i<numNodes;i++){
+			if(B_i.get(i) == null){
+				PG_i.set(i,0.0);
+				continue;
+			}
+
+			Double ans = 1 + (double)B_i.get(i)/maxB;
+			ans = log2(ans);
+			PG_i.set(i, ans);
+		}
+	}
+
+	public static double logb(double a, double b){
+		return Math.log(a)/Math.log(b);
+	}
+
+	public static double log2(double valor){
+		return logb(valor, 2);
+	}
+
+	/*
+		PS_i = log2(1 + (LCC_i * B_i)/(LCC_i + B_i))
+	 */
+	public static void SWORDFISH(){
+		/*Double maxB = -9999999.9;
+
+		for(int i = 0;i<numNodes;i++){
+			if(B_i.get(i) != null && B_i.get(i) > maxB)
+				maxB = B_i.get(i);
+		}
+
+		//PARA DEBUG
+		Debug.p("Maior Betweenness: " + maxB);
+
+		for(int i = 0;i<numNodes;i++){
+			Debug.p("B[" + i + "] = " + B_i.get(i));
+		}
+		Debug.p("");
+
+		for(int i = 0;i<numNodes;i++){
+			if(B_i.get(i) == null){
+				PG_i.set(i,0.0);
+				continue;
+			}
+
+			Double ans = 1 + (double)B_i.get(i)/maxB;
+			ans = log2(ans);
+			PG_i.set(i, ans);
+		}*/
 	}
 
 	public static void calculaLCC(){

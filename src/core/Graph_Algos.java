@@ -4,13 +4,8 @@ package core;
  * Created by diogo on 31/01/19.
  */
 
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.commons.collections15.Transformer;
 import edu.uci.ics.jung.algorithms.importance.BetweennessCentrality;
@@ -53,7 +48,7 @@ public class Graph_Algos
         }
     }
     //used to construct graph and call graph algorithm used in JUNG
-    public void BetweenNess_Centrality_Score(LinkedList<String> Distinct_nodes, LinkedList<String> source_vertex, LinkedList<String> target_vertex, LinkedList<Double> Edge_Weight)
+    public ArrayList<Double> BetweenNess_Centrality_Score(LinkedList<String> Distinct_nodes, LinkedList<String> source_vertex, LinkedList<String> target_vertex, LinkedList<Double> Edge_Weight)
     {
         //CREATING weighted directed graph
         //Graph<MyNode, MyLink> g = new DirectedSparseGraph<Graph_Algos.MyNode, Graph_Algos.MyLink>();
@@ -63,6 +58,7 @@ public class Graph_Algos
         LinkedList<MyNode> Source_Node = new LinkedList<Graph_Algos.MyNode>();
         LinkedList<MyNode> Target_Node = new LinkedList<Graph_Algos.MyNode>();
         LinkedList<MyNode> Graph_Nodes_Only = new LinkedList<Graph_Algos.MyNode>();
+        ArrayList<Double> ans = new ArrayList<Double>();
         //LinkedList<MyLink> Graph_Links = new LinkedList<Graph_Algos.MyLink>();
         //create graph nodes
 
@@ -95,7 +91,10 @@ public class Graph_Algos
         //Calculating Betweenness Centrality score of nodes
         for(int i=0;i<Graph_Nodes_Only.size();i++) {
             System.out.println("Graph Node "+Graph_Nodes_Only.get(i)+" Betweenness Centrality " +BC1.getVertexScore(Graph_Nodes_Only.get(i)));
+            ans.add(BC1.getVertexScore(Graph_Nodes_Only.get(i)));
         }
+
+        return ans;
     }
 
 
