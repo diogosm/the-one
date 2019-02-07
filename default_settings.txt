@@ -25,7 +25,7 @@ btInterface.transmitRange = 10
 # High speed, long range, interface for group 4
 highspeedInterface.type = SimpleBroadcastInterface
 highspeedInterface.transmitSpeed = 10M
-highspeedInterface.transmitRange = 1000
+highspeedInterface.transmitRange = 100
 
 # Define 6 different node groups
 Scenario.nrofHostGroups = 1
