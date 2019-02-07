@@ -76,8 +76,14 @@ public class World {
 	public static ArrayList<Double> LCC;
 	//resultado GAME
 	public static ArrayList<Double> PG_i;
+	public static ArrayList<Double> PforwardG_i; //prob de forward
 	//resultado SWORDFISH
 	public static ArrayList<Double> PS_i;
+	public static ArrayList<Double> PforwardS_i; //prob de forward
+	//variaveis pra probability forward
+	public static double z;
+	public static double p;
+	public static List<DTNHost> hostsAux;
 
 	/**
 	 * Constructor.
@@ -124,8 +130,22 @@ public class World {
 		//inicializa algoritmo
 		PG_i = new ArrayList<Double>();
 		PS_i = new ArrayList<Double>();
-		for(int i = 0;i<this.hosts.size();i++)
-			PG_i.add(0.0); PS_i.add(0.0);
+		PforwardG_i = new ArrayList<Double>();
+		PforwardS_i = new ArrayList<Double>();
+		for(int i = 0;i<this.hosts.size();i++) {
+			PG_i.add(0.0);
+			PS_i.add(0.0);
+			PforwardG_i.add(0.0);
+			PforwardS_i.add(0.0);
+		}
+
+		Debug.p("size = " + this.getSizeX());
+		p = (double)this.hosts.size()/(double)(this.getSizeX() * this.getSizeY());
+		z = (double)hosts.get(0).getInterfaces().get(0).getTransmitRange();
+		hostsAux = hosts;
+
+		Debug.p("p = " + p);
+		Debug.p("z = " + z);
 	}
 
 	/**
@@ -322,6 +342,54 @@ public class World {
 		scheduledUpdates.addUpdate(simTime);
 	}
 
+	public static void removeGrafo(DTNHost host, DTNHost otherHost) {
+		ArrayList<String> aux;
+
+		//add false no grafo em matriz
+		Debug.p("Removendo... [" + host.getAddress() + "] <--> [" + otherHost.getAddress() + "]");
+		grafo[host.getAddress()][otherHost.getAddress()] = false;
+
+		//premissa = nunca há um DOWN antes de um UP entre dois nodes
+		//logo mappedEdges nunca está vazio para @host
+		aux = mappedEdges.get(host.toString());
+
+		//procuro se o nó está mapeado
+		for(String node : aux){
+			if(otherHost.toString() == node){
+				//Debug.p("Dois nós iguais " + node + " otherHost " + otherHost.toString());
+				//remove do mapeamento
+				//Debug.p("Antes de remover = " + aux);
+				aux.remove(node);
+				//Debug.p("Depois de remover = " + aux);
+				break;
+			}
+		}
+
+		mappedEdges.remove(host.toString());
+		mappedEdges.put(host.toString(), aux);
+
+		for(int i = 0;i<Source_Vertex.size();i++){
+			String from = Source_Vertex.get(i);
+			String to = Target_Vertex.get(i);
+
+			if(from == host.toString() && to == otherHost.toString()){
+				Source_Vertex.remove(i);
+				Target_Vertex.remove(i);
+				Edge_Weight.remove(i);
+				break;
+			}
+		}
+
+		//Debug.p("WORLD GRAPH " + GA1);
+		//calcula betweenness
+		B_i = GA1.BetweenNess_Centrality_Score(Distinct_Vertex, Source_Vertex, Target_Vertex, Edge_Weight);
+
+		printaGrafo();
+		calculaLCC();
+		GAME();
+		SWORDFISH();
+	}
+
 	public static void addGrafo(DTNHost host, DTNHost otherHost) {
 		ArrayList<String> aux;
 
@@ -396,6 +464,29 @@ public class World {
 			Double ans = 1 + (double)B_i.get(i)/maxB;
 			ans = log2(ans);
 			PG_i.set(i, ans);
+
+			Debug.p("PG_i[" + i + "] = " + PG_i.get(i));
+		}
+
+		//calcula prob de forward
+		for(int i = 0;i<numNodes;i++){
+			double minDistance = 99999999.9;
+			for(Connection connection : hostsAux.get(i).getConnections()){
+				DTNHost me = hostsAux.get(i);
+				DTNHost otherHost = connection.getOtherNode(hostsAux.get(i));
+
+				minDistance = Math.min(minDistance, me.getLocation().distance(otherHost.getLocation()));
+				//Debug.p("Eu ["+hostsAux.get(i).getAddress()+"] <-> ["+otherHost.getAddress()+"]");
+			}
+
+			//Debug.p("z = " + z + " metros - d[i] = " + minDistance + " metros");
+			double ans = Math.exp(-p *
+					(z - minDistance) / (PG_i.get(i))
+			);
+			if(PG_i.get(i) < 1e-6) ans = 0;
+
+			PforwardG_i.set(i,ans);
+			Debug.p("Me [" + hostsAux.get(i).getAddress() + "] " + "Prob de forward GAME => " + PforwardG_i.get(i));
 		}
 	}
 
@@ -411,31 +502,47 @@ public class World {
 		PS_i = log2(1 + (LCC_i * B_i)/(LCC_i + B_i))
 	 */
 	public static void SWORDFISH(){
-		/*Double maxB = -9999999.9;
 
 		for(int i = 0;i<numNodes;i++){
-			if(B_i.get(i) != null && B_i.get(i) > maxB)
-				maxB = B_i.get(i);
-		}
-
-		//PARA DEBUG
-		Debug.p("Maior Betweenness: " + maxB);
-
-		for(int i = 0;i<numNodes;i++){
-			Debug.p("B[" + i + "] = " + B_i.get(i));
-		}
-		Debug.p("");
-
-		for(int i = 0;i<numNodes;i++){
-			if(B_i.get(i) == null){
-				PG_i.set(i,0.0);
+			if(B_i.get(i) == null || LCC.get(i) == null){
+				PS_i.set(i,0.0);
 				continue;
 			}
 
-			Double ans = 1 + (double)B_i.get(i)/maxB;
+			Double ans = 1 + (
+					(
+							(double)LCC.get(i) * (double)B_i.get(i))
+								/ (
+							(double)LCC.get(i) + (double)B_i.get(i))
+					);
 			ans = log2(ans);
-			PG_i.set(i, ans);
-		}*/
+			PS_i.set(i, ans);
+			if(ans.isNaN()) PS_i.set(i,0.0);
+
+			Debug.p("PS[" + i + "] = " + PS_i.get(i));
+		}
+
+		//calcula prob de forward
+		//calcula prob de forward
+		for(int i = 0;i<numNodes;i++){
+			double minDistance = 99999999.9;
+			for(Connection connection : hostsAux.get(i).getConnections()){
+				DTNHost me = hostsAux.get(i);
+				DTNHost otherHost = connection.getOtherNode(hostsAux.get(i));
+
+				minDistance = Math.min(minDistance, me.getLocation().distance(otherHost.getLocation()));
+				//Debug.p("Eu ["+hostsAux.get(i).getAddress()+"] <-> ["+otherHost.getAddress()+"]");
+			}
+
+			//Debug.p("z = " + z + " metros - d[i] = " + minDistance + " metros");
+			double ans = Math.exp(-p *
+					(z - minDistance) / (PS_i.get(i))
+			);
+			if(PS_i.get(i) < 1e-6) ans = 0;
+
+			PforwardS_i.set(i,ans);
+			Debug.p("Me [" + hostsAux.get(i).getAddress() + "] " + "Prob de forward SWORDFISH => " + PforwardS_i.get(i));
+		}
 	}
 
 	public static void calculaLCC(){
@@ -450,13 +557,14 @@ public class World {
 				if(grafo[i][j]) vizinhos.add(j);
 
 			for(int j = 0;j<vizinhos.size()-1;j++){
-				for(int k = 0;k<vizinhos.size();k++){
+				for(int k = j+1;k<vizinhos.size();k++){
 					if(grafo[vizinhos.get(j)][vizinhos.get(k)]) Li++;
 				}
 			}
 
 			Double LCC_i = (2.0 * (double) Li) / ((double)(grau * (grau-1)));
 			LCC.set(i,LCC_i);
+			if(LCC_i.isNaN()) LCC.set(i,0.0);
 
 			/*if(i == 3){
 				//debug do no 3
@@ -468,7 +576,7 @@ public class World {
 
 		Debug.p("LCC:");
 		for(int i = 0;i<numNodes;i++){
-			Debug.p("["+i+"] = " + LCC.get(i));
+			Debug.p("LCC["+i+"] = " + LCC.get(i));
 		}
 		Debug.p("");
 	}
