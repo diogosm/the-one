@@ -8,6 +8,7 @@ import input.EventQueue;
 import input.ExternalEvent;
 import input.ScheduledUpdatesQueue;
 
+import java.io.*;
 import java.util.*;
 
 import org.apache.commons.collections15.Transformer;
@@ -217,6 +218,7 @@ public class World {
 	 * this method is called and after one update interval.
 	 */
 	public void update () {
+		log();
 		double runUntil = SimClock.getTime() + this.updateInterval;
 
 		setNextEventQueue();
@@ -592,5 +594,44 @@ public class World {
 			System.out.println();
 		}
 		System.out.println();
+	}
+
+	//funcao pra geracao de logs pros graficos
+	private void log(){
+		double tempo = simClock.getTime();
+		if(B_i.size() <= 0) return;
+
+		//SWORDFISH vs LAMBDA
+		//@LAMBDA = [(LCC_i * B_i) / (LCC_i + B_i)]
+		//TEMPO NODE_ID LAMBDA PS_i
+		try{
+			FileWriter fw = new FileWriter(new File("resultados/SWORDFISHvsLAMBDA.csv"),true);
+			BufferedWriter writer = new BufferedWriter(fw);
+
+			for(int i = 0;i<numNodes;i++){
+				if(B_i.get(i) == null || LCC.get(i) == null){
+					writer.write(String.valueOf(tempo) + " ");
+					writer.write(String.valueOf(i) + " ");
+					writer.write(String.valueOf(0.0) + " ");
+					writer.write(String.valueOf(0.0) + "\n");
+					continue;
+				}
+
+				Double lambda = ((double)LCC.get(i) * (double)B_i.get(i))
+								/
+								((double)LCC.get(i) + (double)B_i.get(i));
+				if(lambda.isNaN()) lambda = 0.0;
+
+				writer.write(String.valueOf(tempo) + " ");
+				writer.write(String.valueOf(i) + " ");
+				writer.write(String.valueOf(lambda) + " ");
+				writer.write(String.valueOf(PS_i.get(i)) + "\n");
+			}
+
+			writer.flush();
+			writer.close();
+		} catch (IOException e){
+
+		}
 	}
 }
