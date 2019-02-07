@@ -29,7 +29,7 @@ Group.interface1 = highspeedInterface
 # Message TTL of 300 minutes (5 hours)
 Group.msgTtl = 300
 
-Group.nrofHosts = 9
+Group.nrofHosts = 50
 
 # group1 (cars) specific settings
 Group1.groupID = carro
