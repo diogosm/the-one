@@ -599,7 +599,18 @@ public class World {
 	//funcao pra geracao de logs pros graficos
 	private void log(){
 		double tempo = simClock.getTime();
-		if(B_i.size() <= 0) return;
+		if(B_i.size() <= 0){
+			//zera logs
+			try{
+				FileWriter fw;
+				fw = new FileWriter(new File("resultados/SWORDFISHvsLAMBDA.csv"),false);
+				fw = new FileWriter(new File("resultados/GAMEvsBetweeness.csv"),false);
+				fw = new FileWriter(new File("resultados/LCCeachNode.csv"),false);
+				fw = new FileWriter(new File("resultados/BetweennesseachNode.csv"),false);
+				fw = new FileWriter(new File("resultados/profForwardingvsDistance.csv"),false);
+			} catch (IOException e){}
+			return;
+		}
 
 		//SWORDFISH vs LAMBDA
 		//@LAMBDA = [(LCC_i * B_i) / (LCC_i + B_i)]
@@ -626,6 +637,130 @@ public class World {
 				writer.write(String.valueOf(i) + " ");
 				writer.write(String.valueOf(lambda) + " ");
 				writer.write(String.valueOf(PS_i.get(i)) + "\n");
+			}
+
+			writer.flush();
+			writer.close();
+		} catch (IOException e){
+
+		}
+
+		//GAME vs Betweenness
+		//TEMPO NODE_ID B_i PG_i
+		try{
+			FileWriter fw = new FileWriter(new File("resultados/GAMEvsBetweeness.csv"),true);
+			BufferedWriter writer = new BufferedWriter(fw);
+
+			for(int i = 0;i<numNodes;i++){
+				if(B_i.get(i) == null){
+					writer.write(String.valueOf(tempo) + " ");
+					writer.write(String.valueOf(i) + " ");
+					writer.write(String.valueOf(0.0) + " ");
+					writer.write(String.valueOf(0.0) + "\n");
+					continue;
+				}
+
+				writer.write(String.valueOf(tempo) + " ");
+				writer.write(String.valueOf(i) + " ");
+				writer.write(String.valueOf(B_i.get(i)) + " ");
+				writer.write(String.valueOf(PG_i.get(i)) + "\n");
+			}
+
+			writer.flush();
+			writer.close();
+		} catch (IOException e){
+
+		}
+
+		//LCC of each node
+		//TEMPO NODE_ID LCC_i
+		try{
+			FileWriter fw = new FileWriter(new File("resultados/LCCeachNode.csv"),true);
+			BufferedWriter writer = new BufferedWriter(fw);
+
+			for(int i = 0;i<numNodes;i++){
+				if(LCC.get(i) == null){
+					writer.write(String.valueOf(tempo) + " ");
+					writer.write(String.valueOf(i) + " ");
+					writer.write(String.valueOf(0.0) + "\n");
+					continue;
+				}
+
+				writer.write(String.valueOf(tempo) + " ");
+				writer.write(String.valueOf(i) + " ");
+				writer.write(String.valueOf(LCC.get(i)) + "\n");
+			}
+
+			writer.flush();
+			writer.close();
+		} catch (IOException e){
+
+		}
+
+		//Betweenness of each node
+		//TEMPO NODE_ID B_i
+		try{
+			FileWriter fw = new FileWriter(new File("resultados/BetweennesseachNode.csv"),true);
+			BufferedWriter writer = new BufferedWriter(fw);
+
+			for(int i = 0;i<numNodes;i++){
+				if(B_i.get(i) == null){
+					writer.write(String.valueOf(tempo) + " ");
+					writer.write(String.valueOf(i) + " ");
+					writer.write(String.valueOf(0.0) + "\n");
+					continue;
+				}
+
+				writer.write(String.valueOf(tempo) + " ");
+				writer.write(String.valueOf(i) + " ");
+				writer.write(String.valueOf(B_i.get(i)) + "\n");
+			}
+
+			writer.flush();
+			writer.close();
+		} catch (IOException e){
+
+		}
+
+		//Forwarding probability vs distance
+		//@PforwardG_i
+		//@PforwardS_i
+		//@z
+		//@p
+		//@d[m] = inter-vehicle distance lower than the transmission range z (d[m] <= z)
+		//TEMPO NODE_ID PforwardG_i PforwardS_i z p d[m] PS_i PG_i
+		try{
+			FileWriter fw = new FileWriter(new File("resultados/profForwardingvsDistance.csv"),true);
+			BufferedWriter writer = new BufferedWriter(fw);
+
+			for(int i = 0;i<numNodes;i++){
+				writer.write(String.valueOf(tempo) + " ");
+				writer.write(String.valueOf(i) + " ");
+				writer.write(String.valueOf(PforwardG_i.get(i)) + " ");
+				writer.write(String.valueOf(PforwardS_i.get(i)) + " ");
+				writer.write(String.valueOf(z) + " ");
+				writer.write(String.valueOf(p) + " ");
+
+				double minDistance = 99999999.9;
+				for(Connection connection : hostsAux.get(i).getConnections()){
+					DTNHost me = hostsAux.get(i);
+					DTNHost otherHost = connection.getOtherNode(hostsAux.get(i));
+
+					minDistance = Math.min(minDistance, me.getLocation().distance(otherHost.getLocation()));
+				}
+
+				//d[m]
+				writer.write(String.valueOf(minDistance) + " ");
+
+				if(B_i.get(i) == null || LCC.get(i) == null)
+					writer.write(String.valueOf(0.0) + " ");
+				else
+					writer.write(String.valueOf(PS_i.get(i)) + " ");
+
+				if(B_i.get(i) == null)
+					writer.write(String.valueOf(0.0) + "\n");
+				else
+					writer.write(String.valueOf(PG_i.get(i)) + "\n");
 			}
 
 			writer.flush();
