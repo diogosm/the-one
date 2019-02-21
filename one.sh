@@ -1,2 +1,2 @@
 #! /bin/sh
-java -Xmx512M -cp target:lib/ECLA.jar:lib/DTNConsoleConnection.jar:lib/jung-jai-2.0.1.jar:lib/jung-graph-impl-2.0.1.jar core.DTNSim $*
+java -Xmx512M -cp target:lib/ECLA.jar:lib/DTNConsoleConnection.jar:lib/jung-jai-2.0.1.jar:lib/jung-graph-impl-2.0.1.jar:lib/gs-core-1.3.jar:lib/gs-algo-1.3.jar core.DTNSim $*
