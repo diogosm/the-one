@@ -3,6 +3,7 @@
 
 # Simulation report files
 *reports*/*.txt
+resultados/
 
 # Javadocs
 *.html
