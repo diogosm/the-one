@@ -87,7 +87,7 @@ public class Swordfish extends ActiveRouter {
             int aux = grafoAmizade.get(otherHost.getAddress());
             grafoAmizade.set(otherHost.getAddress(), aux-1);
 
-            World.removeGrafo(this.getHost(), otherHost);
+            //World.removeGrafo(this.getHost(), otherHost);
         }
     }
 
