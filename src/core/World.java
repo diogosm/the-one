@@ -17,6 +17,8 @@ import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.EdgeType;
 import core.Graph_Algos;
+//import org.graphstream.graph.*;
+//import org.graphstream.graph.implementations.SingleGraph;
 
 
 /**
@@ -140,13 +142,13 @@ public class World {
 			PforwardS_i.add(0.0);
 		}
 
-		Debug.p("size = " + this.getSizeX());
+		//Debug.p("size = " + this.getSizeX());
 		p = (double)this.hosts.size()/(double)(this.getSizeX() * this.getSizeY());
 		z = (double)hosts.get(0).getInterfaces().get(0).getTransmitRange();
 		hostsAux = hosts;
 
-		Debug.p("p = " + p);
-		Debug.p("z = " + z);
+		//Debug.p("p = " + p);
+		//Debug.p("z = " + z);
 	}
 
 	/**
@@ -348,7 +350,7 @@ public class World {
 		ArrayList<String> aux;
 
 		//add false no grafo em matriz
-		Debug.p("Removendo... [" + host.getAddress() + "] <--> [" + otherHost.getAddress() + "]");
+		//Debug.p("Removendo... [" + host.getAddress() + "] <--> [" + otherHost.getAddress() + "]");
 		grafo[host.getAddress()][otherHost.getAddress()] = false;
 
 		//premissa = nunca há um DOWN antes de um UP entre dois nodes
@@ -358,11 +360,11 @@ public class World {
 		//procuro se o nó está mapeado
 		for(String node : aux){
 			if(otherHost.toString() == node){
-				//Debug.p("Dois nós iguais " + node + " otherHost " + otherHost.toString());
+				////Debug.p("Dois nós iguais " + node + " otherHost " + otherHost.toString());
 				//remove do mapeamento
-				//Debug.p("Antes de remover = " + aux);
+				////Debug.p("Antes de remover = " + aux);
 				aux.remove(node);
-				//Debug.p("Depois de remover = " + aux);
+				////Debug.p("Depois de remover = " + aux);
 				break;
 			}
 		}
@@ -382,7 +384,7 @@ public class World {
 			}
 		}
 
-		//Debug.p("WORLD GRAPH " + GA1);
+		////Debug.p("WORLD GRAPH " + GA1);
 		//calcula betweenness
 		B_i = GA1.BetweenNess_Centrality_Score(Distinct_Vertex, Source_Vertex, Target_Vertex, Edge_Weight);
 
@@ -396,7 +398,7 @@ public class World {
 		ArrayList<String> aux;
 
 		//add true no grafo
-		//Debug.p("[" + host.getAddress() + "] <--> [" + otherHost.getAddress() + "]");
+		////Debug.p("[" + host.getAddress() + "] <--> [" + otherHost.getAddress() + "]");
 		grafo[host.getAddress()][otherHost.getAddress()] = true;
 
 		if(mappedEdges.containsKey(host.toString())){
@@ -404,10 +406,10 @@ public class World {
 
 			for(String node : aux){
 				if(otherHost.toString() == node){
-					//Debug.p("Dois nós iguais " + node + " otherHost " + otherHost.toString());
+					////Debug.p("Dois nós iguais " + node + " otherHost " + otherHost.toString());
 					return;
 				}else continue;
-					//Debug.p("Dois nós NÃO iguais " + node + " otherHost " + otherHost.toString());
+					////Debug.p("Dois nós NÃO iguais " + node + " otherHost " + otherHost.toString());
 			}
 
 			aux.add(otherHost.toString());
@@ -428,7 +430,7 @@ public class World {
 			Edge_Weight.add(1.0);
 		}
 
-		//Debug.p("WORLD GRAPH " + GA1);
+		////Debug.p("WORLD GRAPH " + GA1);
 		//calcula betweenness
 		B_i = GA1.BetweenNess_Centrality_Score(Distinct_Vertex, Source_Vertex, Target_Vertex, Edge_Weight);
 
@@ -450,12 +452,12 @@ public class World {
 		}
 
 		//PARA DEBUG
-		Debug.p("Maior Betweenness: " + maxB);
+		//Debug.p("Maior Betweenness: " + maxB);
 
 		for(int i = 0;i<numNodes;i++){
-			Debug.p("B[" + i + "] = " + B_i.get(i));
+			//Debug.p("B[" + i + "] = " + B_i.get(i));
 		}
-		Debug.p("");
+		//Debug.p("");
 
 		for(int i = 0;i<numNodes;i++){
 			if(B_i.get(i) == null){
@@ -466,29 +468,35 @@ public class World {
 			Double ans = 1 + (double)B_i.get(i)/maxB;
 			ans = log2(ans);
 			PG_i.set(i, ans);
+			if(ans.isNaN())
+				PG_i.set(i, 0.0);
 
-			Debug.p("PG_i[" + i + "] = " + PG_i.get(i));
+			//Debug.p("PG_i[" + i + "] = " + PG_i.get(i));
 		}
 
 		//calcula prob de forward
 		for(int i = 0;i<numNodes;i++){
 			double minDistance = 99999999.9;
+			boolean temVizinhos = false;
 			for(Connection connection : hostsAux.get(i).getConnections()){
 				DTNHost me = hostsAux.get(i);
 				DTNHost otherHost = connection.getOtherNode(hostsAux.get(i));
 
 				minDistance = Math.min(minDistance, me.getLocation().distance(otherHost.getLocation()));
-				//Debug.p("Eu ["+hostsAux.get(i).getAddress()+"] <-> ["+otherHost.getAddress()+"]");
+				////Debug.p("Eu ["+hostsAux.get(i).getAddress()+"] <-> ["+otherHost.getAddress()+"]");
+
+				temVizinhos = true;
 			}
 
-			//Debug.p("z = " + z + " metros - d[i] = " + minDistance + " metros");
+			////Debug.p("z = " + z + " metros - d[i] = " + minDistance + " metros");
 			double ans = Math.exp(-p *
 					(z - minDistance) / (PG_i.get(i))
 			);
 			if(PG_i.get(i) < 1e-6) ans = 0;
+			if(!temVizinhos) ans = 0;
 
 			PforwardG_i.set(i,ans);
-			Debug.p("Me [" + hostsAux.get(i).getAddress() + "] " + "Prob de forward GAME => " + PforwardG_i.get(i));
+			//Debug.p("Me [" + hostsAux.get(i).getAddress() + "] " + "Prob de forward GAME => " + PforwardG_i.get(i));
 		}
 	}
 
@@ -521,29 +529,33 @@ public class World {
 			PS_i.set(i, ans);
 			if(ans.isNaN()) PS_i.set(i,0.0);
 
-			Debug.p("PS[" + i + "] = " + PS_i.get(i));
+			//Debug.p("PS[" + i + "] = " + PS_i.get(i));
 		}
 
 		//calcula prob de forward
 		//calcula prob de forward
 		for(int i = 0;i<numNodes;i++){
 			double minDistance = 99999999.9;
+			boolean temVizinhos = false;
 			for(Connection connection : hostsAux.get(i).getConnections()){
 				DTNHost me = hostsAux.get(i);
 				DTNHost otherHost = connection.getOtherNode(hostsAux.get(i));
 
 				minDistance = Math.min(minDistance, me.getLocation().distance(otherHost.getLocation()));
-				//Debug.p("Eu ["+hostsAux.get(i).getAddress()+"] <-> ["+otherHost.getAddress()+"]");
+				////Debug.p("Eu ["+hostsAux.get(i).getAddress()+"] <-> ["+otherHost.getAddress()+"]");
+
+				temVizinhos = true;
 			}
 
-			//Debug.p("z = " + z + " metros - d[i] = " + minDistance + " metros");
+			////Debug.p("z = " + z + " metros - d[i] = " + minDistance + " metros");
 			double ans = Math.exp(-p *
 					(z - minDistance) / (PS_i.get(i))
 			);
 			if(PS_i.get(i) < 1e-6) ans = 0;
+			if(!temVizinhos) ans = 0;
 
 			PforwardS_i.set(i,ans);
-			Debug.p("Me [" + hostsAux.get(i).getAddress() + "] " + "Prob de forward SWORDFISH => " + PforwardS_i.get(i));
+			//Debug.p("Me [" + hostsAux.get(i).getAddress() + "] " + "Prob de forward SWORDFISH => " + PforwardS_i.get(i));
 		}
 	}
 
@@ -570,21 +582,22 @@ public class World {
 
 			/*if(i == 3){
 				//debug do no 3
-				Debug.p("Grau: " + grau);
-				Debug.p("Li: " + Li);
-				Debug.p("LCC_3: " + LCC_i);
+				//Debug.p("Grau: " + grau);
+				//Debug.p("Li: " + Li);
+				//Debug.p("LCC_3: " + LCC_i);
 			}*/
 		}
 
-		Debug.p("LCC:");
+		//Debug.p("LCC:");
 		for(int i = 0;i<numNodes;i++){
-			Debug.p("LCC["+i+"] = " + LCC.get(i));
+			//Debug.p("LCC["+i+"] = " + LCC.get(i));
 		}
-		Debug.p("");
+		//Debug.p("");
 	}
 
 	public static void printaGrafo(){
-		Debug.p("[" + SimClock.getTime()+ "] Grafo:");
+		if(true) return;
+		//Debug.p("[" + SimClock.getTime()+ "] Grafo:");
 		for(int i = 0;i<numNodes;i++){
 			System.out.print("Node " + i + "\t");
 			for(int j = 0;j<numNodes;j++){
@@ -616,7 +629,7 @@ public class World {
 		//@LAMBDA = [(LCC_i * B_i) / (LCC_i + B_i)]
 		//TEMPO NODE_ID LAMBDA PS_i
 		try{
-			FileWriter fw = new FileWriter(new File("resultados/SWORDFISHvsLAMBDA.csv"),true);
+			FileWriter fw = new FileWriter(new File("resultados/SWORDFISHvsLAMBDA.csv"),false);
 			BufferedWriter writer = new BufferedWriter(fw);
 
 			for(int i = 0;i<numNodes;i++){
@@ -648,7 +661,7 @@ public class World {
 		//GAME vs Betweenness
 		//TEMPO NODE_ID B_i PG_i
 		try{
-			FileWriter fw = new FileWriter(new File("resultados/GAMEvsBetweeness.csv"),true);
+			FileWriter fw = new FileWriter(new File("resultados/GAMEvsBetweeness.csv"),false);
 			BufferedWriter writer = new BufferedWriter(fw);
 
 			for(int i = 0;i<numNodes;i++){
@@ -675,7 +688,7 @@ public class World {
 		//LCC of each node
 		//TEMPO NODE_ID LCC_i
 		try{
-			FileWriter fw = new FileWriter(new File("resultados/LCCeachNode.csv"),true);
+			FileWriter fw = new FileWriter(new File("resultados/LCCeachNode.csv"),false);
 			BufferedWriter writer = new BufferedWriter(fw);
 
 			for(int i = 0;i<numNodes;i++){
@@ -700,7 +713,7 @@ public class World {
 		//Betweenness of each node
 		//TEMPO NODE_ID B_i
 		try{
-			FileWriter fw = new FileWriter(new File("resultados/BetweennesseachNode.csv"),true);
+			FileWriter fw = new FileWriter(new File("resultados/BetweennesseachNode.csv"),false);
 			BufferedWriter writer = new BufferedWriter(fw);
 
 			for(int i = 0;i<numNodes;i++){
@@ -730,13 +743,14 @@ public class World {
 		//@d[m] = inter-vehicle distance lower than the transmission range z (d[m] <= z)
 		//TEMPO NODE_ID PforwardG_i PforwardS_i z p d[m] PS_i PG_i
 		try{
-			FileWriter fw = new FileWriter(new File("resultados/profForwardingvsDistance.csv"),true);
+			FileWriter fw = new FileWriter(new File("resultados/profForwardingvsDistance.csv"),false);
 			BufferedWriter writer = new BufferedWriter(fw);
 
 			for(int i = 0;i<numNodes;i++){
 				writer.write(String.valueOf(tempo) + " ");
 				writer.write(String.valueOf(i) + " ");
-				writer.write(String.valueOf(PforwardG_i.get(i)) + " ");
+				//if(!PforwardG_i.get(i).isInfinite())
+					writer.write(String.valueOf(PforwardG_i.get(i)) + " ");
 				writer.write(String.valueOf(PforwardS_i.get(i)) + " ");
 				writer.write(String.valueOf(z) + " ");
 				writer.write(String.valueOf(p) + " ");
