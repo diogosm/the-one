@@ -65,6 +65,11 @@ public class MessageEventGenerator implements EventQueue {
 	/** Random number generator for this Class */
 	protected Random rng;
 
+	/** namespace of scenario settings ({@value})*/
+	public static final String SCENARIO_NS = "Scenario";
+	/** num max de msgs criadas ({@value})*/
+	public static final String NROF_MSGS = "maxmsgscriadas";
+
 	/**
 	 * Constructor, initializes the interval between events,
 	 * and the size of messages generated, as well as number
@@ -192,6 +197,10 @@ public class MessageEventGenerator implements EventQueue {
 		int from;
 		int to;
 
+		//evita criar mais que X mensagens
+		Settings s = new Settings(SCENARIO_NS);
+		int maxMsgs = s.getInt(NROF_MSGS);
+
 		/* Get two *different* nodes randomly from the host ranges */
 		from = drawHostAddress(this.hostRange);
 		to = drawToAddress(hostRange, from);
@@ -203,6 +212,9 @@ public class MessageEventGenerator implements EventQueue {
 		MessageCreateEvent mce = new MessageCreateEvent(from, to, this.getID(),
 				msgSize, responseSize, this.nextEventsTime);
 		this.nextEventsTime += interval;
+
+		//gambi pra criar X mensagens
+		if(this.id >= maxMsgs) this.nextEventsTime += 99999999;
 
 		if (this.msgTime != null && this.nextEventsTime > this.msgTime[1]) {
 			/* next event would be later than the end time */
