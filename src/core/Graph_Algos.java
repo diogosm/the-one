@@ -90,7 +90,7 @@ public class Graph_Algos
         edu.uci.ics.jung.algorithms.scoring.BetweennessCentrality<MyNode, MyLink> BC1 = new edu.uci.ics.jung.algorithms.scoring.BetweennessCentrality<MyNode, MyLink>(g,wtTransformer);
         //Calculating Betweenness Centrality score of nodes
         for(int i=0;i<Graph_Nodes_Only.size();i++) {
-            System.out.println("Graph Node "+Graph_Nodes_Only.get(i)+" Betweenness Centrality " +BC1.getVertexScore(Graph_Nodes_Only.get(i)));
+            //System.out.println("Graph Node "+Graph_Nodes_Only.get(i)+" Betweenness Centrality " +BC1.getVertexScore(Graph_Nodes_Only.get(i)));
             ans.add(BC1.getVertexScore(Graph_Nodes_Only.get(i)));
         }
 
