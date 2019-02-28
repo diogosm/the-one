@@ -400,6 +400,11 @@ public class SimScenario implements Serializable {
 						mmProto, mRouterProto);
 				hosts.add(host);
 			}
+
+			//some debugs
+			Debug.p("################ Iniciando simulação... ");
+			Debug.p("################ Usando o roteamento: " + s.getSetting(ROUTER_S));
+			Debug.p("################ Número de nós: " + nrofHosts);
 		}
 	}
 
