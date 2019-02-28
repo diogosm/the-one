@@ -143,7 +143,8 @@ public class World {
 		}
 
 		//Debug.p("size = " + this.getSizeX());
-		p = (double)this.hosts.size()/(double)(this.getSizeX() * this.getSizeY());
+		//p = (double)this.hosts.size()/(double)(this.getSizeX() * this.getSizeY());
+		p = 0.02;
 		z = (double)hosts.get(0).getInterfaces().get(0).getTransmitRange();
 		hostsAux = hosts;
 
@@ -611,6 +612,7 @@ public class World {
 
 	//funcao pra geracao de logs pros graficos
 	private void log(){
+		if(true) return;
 		double tempo = simClock.getTime();
 		if(B_i.size() <= 0){
 			//zera logs
