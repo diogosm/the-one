@@ -1,9 +1,52 @@
 ## Scenario settings
-Scenario.name = GameSwordfishRun
+## Scenario.name = R=Swordfish_N=50_T=12h
+## Scenario.name = R=Epidemic_N=50_T=12h
 Scenario.simulateConnections = true
 Scenario.updateInterval = 1
+
+##################################################
+######## SEMPRE ALTERAR ESSAS VARIAVEIS ##########
+##################################################
+
+## Scenario.name = R=Swordfish_N=50_T=12h
+## Scenario.name = R=Epidemic_N=50_T=12h
+Scenario.name = R=Epidemic_N=40_T=12h_TTL=60_Seed=%%MovementModel.rngSeed%%
+
+Report.reportDir = reports/
+# 86400s == 24h
 # 43200s == 12h
-Scenario.endTime = 1000
+# 21600s == 6h
+Scenario.endTime = 86400
+
+highspeedInterface.transmitSpeed = 250k
+highspeedInterface.transmitRange = 200
+
+## Utilizacao do novo algoritmo de roteamento
+## Group.router = EpidemicRouter
+## Group.router = Swordfish
+## Group.router = Game
+## Group.router = ProphetRouter
+## Group.router = MaxPropRouter
+Group.router = EpidemicRouter
+
+Group.nrofHosts = 40
+Group.bufferSize = 150M
+# Message TTL of 300 minutes (5 hours)
+Group.msgTtl = 60
+Group.sendQueue = FIFO
+
+# Creation interval in seconds (one new message every 25 to 35 seconds)
+Events1.interval = 30,60
+# Message sizes (500kB - 1MB)
+Events1.size = 1M,2M
+# range of message source/destination addresses
+Events1.hosts = 0,40
+# MAX msgs criadas
+Scenario.maxmsgscriadas = 1000
+
+##################################################
+##### [FIM] SEMPRE ALTERAR ESSAS VARIAVEIS #######
+##################################################
 
 # Define 6 different node groups
 Scenario.nrofHostGroups = 1
@@ -11,25 +54,12 @@ Scenario.nrofHostGroups = 1
 # Common settings for all groups
 Group.movementModel = MapBasedMovement
 
-## Utilizacao do novo algoritmo de roteamento
-## Group.router = EpidemicRouter
-
-#############################
-######## SWORDFISH ##########
-#############################
-Group.router = Swordfish
-
 ## RoteamentoAmigos.grafo = mobilidade/grafo.txt
 
-Group.bufferSize = 5M
 Group.waitTime = 0, 120
 # All nodes have the bluetooth interface
 Group.nrofInterfaces = 1
 Group.interface1 = highspeedInterface
-# Message TTL of 300 minutes (5 hours)
-Group.msgTtl = 300
-
-Group.nrofHosts = 50
 
 # group1 (cars) specific settings
 Group1.groupID = carro
@@ -37,7 +67,8 @@ Group1.okMaps = 1
 # cars can drive only on roads
 Group1.okMaps = 1
 # 10-50 km/h (em m/s)
-Group1.speed = 2.7, 13.9
+# Group1.speed = 2.7, 13.9
+# Group1.speed = 13.9, 13.9
 
 
 ## Message creation parameters
@@ -46,24 +77,18 @@ Events.nrof = 1
 # Class of the first event generator
 Events1.class = MessageEventGenerator
 # (following settings are specific for the MessageEventGenerator class)
-# Creation interval in seconds (one new message every 25 to 35 seconds)
-Events1.interval = 25,35
-# Message sizes (500kB - 1MB)
-Events1.size = 500k,1M
-# range of message source/destination addresses
-Events1.hosts = 0,3
 # Message ID prefix
 Events1.prefix = Message
 
 # seed for movement models' pseudo random number generator (default = 0)
-MovementModel.rngSeed = [2; 8372; 98092; 18293; 777]
+MovementModel.rngSeed = [2; 8372; 98092; 18293; 777; 14; 0; 813681; 71412; 1]
 #MovementModel.rngSeed = [2; 8372]
 #MovementModel.rngSeed = 8372
 
 # World's size for Movement Models without implicit size (width, height; meters)
-MovementModel.worldSize = 10000, 8000
+MovementModel.worldSize = 4400, 3400
 # How long time to move hosts in the world before real simulation
-MovementModel.warmup = 43000
+MovementModel.warmup = 0
 
 ## Map based movement -movement model specific settings
 MapBasedMovement.nrofMapFiles = 4
@@ -76,14 +101,19 @@ MapBasedMovement.mapFile4 = data/shops.wkt
 ## Reports - all report names have to be valid report classes
 
 # how many reports to load
-Report.nrofReports = 2
+Report.nrofReports = 8
 # length of the warm up period (simulated seconds)
 Report.warmup = 0
 # default directory of reports (can be overridden per Report with output setting)
-Report.reportDir = reports/
 # Report classes to load
 Report.report1 = MessageStatsReport
 Report.report2 = ContactTimesReport
+Report.report3 = BufferOccupancyReport
+Report.report4 = AdjacencyGraphvizReport
+Report.report5 = DeliveredMessagesReport
+Report.report6 = DistanceDelayReport
+Report.report7 = MessageDelayReport
+Report.report8 = MessageDeliveryReport
 
 ## Default settings for some routers settings
 ProphetRouter.secondsInTimeUnit = 30
