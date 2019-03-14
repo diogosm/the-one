@@ -179,6 +179,8 @@ public class EnergyModel implements ModuleCommunicationListener {
 			this.comBus.subscribe(ENERGY_VALUE_ID, this);
 		}
 
+		if(iface.getConnections().size() < 1) return;
+
 		if (simTime > this.lastUpdate && iface.isTransferring()) {
 			/* sending or receiving data */
 			reduceEnergy(delta * this.transmitEnergy);
