@@ -88,6 +88,8 @@ public class Swordfish extends ActiveRouter {
         for(Tuple<Double, Tuple<DTNHost, Connection>> t : vizinhos){
             Connection con = t.getValue().getValue();
 
+            if(t.getKey() < 0.5) break;
+
             for(Message m : this.getMessageCollection()){
                 messages.add(new Tuple<Message, Connection>(m, con));
             }
