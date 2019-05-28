@@ -82,6 +82,8 @@ public abstract class MessageRouter {
 	public static final int DENIED_POLICY = -5;
 	// retorno de congestion control
 	public static final int DENIED_ALREADY_RELAYED = -6;
+	// retorno interface off
+	public static final int DENIED_INTERFACE_OFF = -7;
 	/** Receive return value for unspecified reason */
 	public static final int DENIED_UNSPECIFIED = -99;
 
