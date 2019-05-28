@@ -7,6 +7,7 @@ package routing.util;
 import java.util.Random;
 
 import core.*;
+import routing.ActiveRouter;
 
 /**
  * Energy model for routing modules. Handles power use from scanning (device
@@ -30,6 +31,10 @@ public class EnergyModel implements ModuleCommunicationListener {
 	/** Energy usage per second when transferring data 
 	 * -setting id ({@value}). */
 	public static final String TRANSMIT_ENERGY_S = "transmitEnergy";
+
+	/** add pra recharge e receiving **/
+	public static final String RECEIVE_ENERGY_S = "receiveEnergy";
+	public static final String RECHARGE_ENERGY_S = "rechargeEnergy";
 
 	/** Energy update warmup period -setting id ({@value}). Defines the
 	 * simulation time after which the energy level starts to decrease due to
@@ -58,6 +63,8 @@ public class EnergyModel implements ModuleCommunicationListener {
 	private double lastUpdate;
 	private ModuleCommunicationBus comBus;
 	private static Random rng = null;
+	private double rechargeEnergy;
+	private double receiveEnergy;
 
 	/**
 	 * Constructor. Creates a new message router based on the settings in
@@ -75,6 +82,8 @@ public class EnergyModel implements ModuleCommunicationListener {
 		this.scanEnergy = s.getDouble(SCAN_ENERGY_S);
 		this.transmitEnergy = s.getDouble(TRANSMIT_ENERGY_S);
 		this.scanResponseEnergy = s.getDouble(SCAN_RSP_ENERGY_S);
+		this.receiveEnergy = s.getDouble(RECEIVE_ENERGY_S);
+		this.rechargeEnergy = s.getDouble(RECHARGE_ENERGY_S);
 
 		if (s.contains(WARMUP_S)) {
 			this.warmupTime = s.getInt(WARMUP_S);
@@ -134,6 +143,11 @@ public class EnergyModel implements ModuleCommunicationListener {
 		return this.currentEnergy;
 	}
 
+	/** Return energy level in percent **/
+	public double getEnergyPercent() {
+		return 100.*(this.currentEnergy/this.initEnergy[0]);
+	}
+
 	/**
 	 * Updates the current energy so that the given amount is reduced from it.
 	 * If the energy level goes below zero, sets the level to zero.
@@ -151,6 +165,8 @@ public class EnergyModel implements ModuleCommunicationListener {
 
 		if (amount >= this.currentEnergy) {
 			comBus.updateProperty(ENERGY_VALUE_ID, 0.0);
+			//desligo a interface
+			this.comBus.updateProperty(NetworkInterface.INTERFACE_STATUS, 0);
 		} else {
 			comBus.updateDouble(ENERGY_VALUE_ID, -amount);
 		}
@@ -170,6 +186,8 @@ public class EnergyModel implements ModuleCommunicationListener {
 	 * and scanning for the other nodes.
 	 */
 	public void update(NetworkInterface iface, ModuleCommunicationBus comBus) {
+		Debug.p("[" + iface.getHost()+ "][" + iface.getInterfaceStatus() +"] My energy updating ... " + this.getEnergyPercent());
+
 		double simTime = SimClock.getTime();
 		double delta = simTime - this.lastUpdate;
 
@@ -179,7 +197,12 @@ public class EnergyModel implements ModuleCommunicationListener {
 			this.comBus.subscribe(ENERGY_VALUE_ID, this);
 		}
 
-		if(iface.getConnections().size() < 1) return;
+		//if(iface.getHost().getAddress() == 0) this.comBus.updateProperty(NetworkInterface.INTERFACE_STATUS, 0);
+
+		//add isto se precisar que o modulo nao conte energia em caso de nao haver conexoes vizinhas
+		//@TODO
+		//	Criar mecanismo de descanso caso este utilizando energia so pra scanear
+		//if(iface.getConnections().size() < 1) return;
 
 		if (simTime > this.lastUpdate && iface.isTransferring()) {
 			/* sending or receiving data */
