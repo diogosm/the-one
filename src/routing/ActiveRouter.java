@@ -248,6 +248,11 @@ public abstract class ActiveRouter extends MessageRouter {
 			return DENIED_TTL;
 		}
 
+		/** interface desligada **/
+		if (from.getInterface(1).getInterfaceStatus() == "OFF"){
+			return MessageRouter.DENIED_INTERFACE_OFF;
+		}
+
 		if (energy != null && energy.getEnergy() <= 0) {
 			return MessageRouter.DENIED_LOW_RESOURCES;
 		}
