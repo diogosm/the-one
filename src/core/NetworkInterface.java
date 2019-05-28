@@ -45,6 +45,7 @@ abstract public class NetworkInterface implements ModuleCommunicationListener {
 	/** {@link ModuleCommunicationBus} identifier for the "transmission speed"
     variable. Value type: integer */
 	public static final String SPEED_ID = "Network.speed";
+	public static final String INTERFACE_STATUS = "Network.interfaceStatus";
 
 	private static final int CON_UP = 1;
 	private static final int CON_DOWN = 2;
@@ -63,6 +64,8 @@ abstract public class NetworkInterface implements ModuleCommunicationListener {
 	/** scanning interval, or 0.0 if n/a */
 	private double scanInterval;
 	private double lastScanTime;
+	/** desliga interface **/
+	private int interfaceStatus;
 
 	/** activeness handler for the node group */
 	private ActivenessHandler ah;
@@ -126,6 +129,8 @@ abstract public class NetworkInterface implements ModuleCommunicationListener {
 		this.scanInterval = ni.scanInterval;
 		/* draw lastScanTime of [0 -- scanInterval] */
 		this.lastScanTime = rng.nextDouble() * this.scanInterval;
+
+		this.interfaceStatus = 1;
 	}
 
 	/**
@@ -152,7 +157,14 @@ abstract public class NetworkInterface implements ModuleCommunicationListener {
 			comBus.subscribe(SCAN_INTERVAL_ID, this);
 			comBus.subscribe(RANGE_ID, this);
 			comBus.subscribe(SPEED_ID, this);
+			comBus.addProperty(INTERFACE_STATUS, 1);
+			comBus.subscribe(INTERFACE_STATUS, this);
 		}
+
+		Settings initS = new Settings("Group");
+		String intName = initS.getSetting("interface1");
+		Settings s = new Settings(intName);
+		this.scanInterval = s.getDouble(SCAN_INTERVAL_S);
 
 		if (transmitRange > 0) {
 			optimizer = ConnectivityGrid.ConnectivityGridFactory(
@@ -205,6 +217,12 @@ abstract public class NetworkInterface implements ModuleCommunicationListener {
 	public double getTransmitRange() {
 		return this.transmitRange;
 	}
+
+	/** get interval of scanning **/
+	public double getScanInterval(){ return this.scanInterval; }
+
+	/** diz se a interface ta on ou off **/
+	public String getInterfaceStatus(){ return this.interfaceStatus == 0 ? "OFF" : "ON"; }
 
 	/**
 	 * Returns the transmit speed of this network layer with respect to the
@@ -273,7 +291,9 @@ abstract public class NetworkInterface implements ModuleCommunicationListener {
 			}
 			else if (simTime > lastScanTime + scanInterval) {
 				lastScanTime = simTime; /* time to start the next scan round */
-				return true;
+
+				if(interfaceStatus != 0) return true;
+				else return false;
 			}
 			else if (simTime != lastScanTime ){
 				return false; /* not in the scan round */
@@ -436,6 +456,9 @@ abstract public class NetworkInterface implements ModuleCommunicationListener {
 		}
 		else if (key.equals(RANGE_ID)) {
 			this.transmitRange = (Double)newValue;
+		}
+		else if (key.equals(INTERFACE_STATUS)){
+			this.interfaceStatus = (int)newValue;
 		}
 		else {
 			throw new SimError("Unexpected combus ID " + key);
