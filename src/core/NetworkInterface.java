@@ -301,7 +301,8 @@ abstract public class NetworkInterface implements ModuleCommunicationListener {
 		}
 		/* interval == 0 or still in the same scan round as when
 		   last time asked */
-		return true;
+		if(interfaceStatus != 0) return true;
+		else return false;
 	}
 
 	/**
