@@ -2,8 +2,8 @@
 *.class
 
 # Simulation report files
-*reports*/*.txt
-resultados/
+*reports*/*
+resultados/*
 
 # Javadocs
 *.html
