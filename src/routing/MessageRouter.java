@@ -84,6 +84,8 @@ public abstract class MessageRouter {
 	public static final int DENIED_ALREADY_RELAYED = -6;
 	// retorno interface off
 	public static final int DENIED_INTERFACE_OFF = -7;
+	// ja entregue
+	public static final int DENIED_DELIVERED = -8;
 	/** Receive return value for unspecified reason */
 	public static final int DENIED_UNSPECIFIED = -99;
 
@@ -731,5 +733,15 @@ public abstract class MessageRouter {
 		return getClass().getSimpleName() + " of " +
 			this.getHost().toString() + " with " + getNrofMessages()
 			+ " messages";
+	}
+
+	/** add no delivered messages */
+	public void deliveredMessagesPutting(String id,Message m){
+		this.deliveredMessages.put(id, m);
+	}
+
+	/** pega os listeners **/
+	public List<MessageListener> getmListeners(){
+		return this.mListeners;
 	}
 }
