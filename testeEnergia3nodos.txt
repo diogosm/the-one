@@ -61,7 +61,7 @@ Group.movementModel = RandomWaypoint
 #############################
 ######## SWORDFISH ##########
 #############################
-Group.router = EpidemicRouter
+## Group.router = EpidemicRouter
 
 Group.bufferSize = 50M
 Group.waitTime = 0, 120
@@ -140,3 +140,26 @@ Group.rechargeEnergy = 28800
 
 Scenario.maxmsgscriadas = 1000000
 
+## PARA USAR O BUBBLE RAP
+Group.router = DecisionEngineRouter
+DecisionEngineRouter.decisionEngine = community.DistributedBubbleRap
+DecisionEngineRouter.communityDetectAlg = routing.community.KCliqueCommunityDetection
+DecisionEngineRouter.K = 5
+DecisionEngineRouter.familiarThreshold = 700
+DecisionEngineRouter.centralityAlg = routing.community.CWindowCentrality
+
+# how many reports to load
+Report.nrofReports = 5
+# length of the warm up period (simulated seconds)
+Report.warmup = 0
+# default directory of reports (can be overridden per Report with output setting)
+Report.reportDir = reports/
+# Report classes to load
+Report.report1 = MessageStatsReport
+Report.report2 = ContactTimesReport
+Report.report3 = CommunityDetectionReport
+Report.report4 = DeliveryCentralityReport
+Report.report5 = SimpleCommunityDetectionReport
+    SimpleCommunityDetectionReport.lambda = 0.5
+    SimpleCommunityDetectionReport.gamma = 0.5
+    SimpleCommunityDetectionReport.familiarThreshold = 0.5
