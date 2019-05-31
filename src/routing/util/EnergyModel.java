@@ -48,11 +48,16 @@ public class EnergyModel implements ModuleCommunicationListener {
 	 * energy left" variable. Value type: double */
 	public static final String ENERGY_VALUE_ID = "Energy.value";
 
+	/** energy value in percent da combus **/
+	public static final String ENERGY_VALUE_PERCENT = "Energy.valuePercent";
+
 	/** Initial energy levels from the settings */
 	private final double[] initEnergy;
 	private double warmupTime;
 	/** current energy level */
 	private double currentEnergy;
+	//energia em porcento
+	private double currentEnergyPercent;
 	/** energy usage per scan */
 	private double scanEnergy;
 	/** energy usage per transmitted byte */
@@ -170,7 +175,7 @@ public class EnergyModel implements ModuleCommunicationListener {
 		} else {
 			comBus.updateDouble(ENERGY_VALUE_ID, -amount);
 		}
-
+		comBus.updateProperty(ENERGY_VALUE_PERCENT, this.getEnergyPercent());
 	}
 
 	/**
@@ -186,7 +191,7 @@ public class EnergyModel implements ModuleCommunicationListener {
 	 * and scanning for the other nodes.
 	 */
 	public void update(NetworkInterface iface, ModuleCommunicationBus comBus) {
-		Debug.p("[" + iface.getHost()+ "][" + iface.getInterfaceStatus() +"] My energy updating ... " + this.getEnergyPercent());
+		//Debug.p("[" + iface.getHost()+ "][" + iface.getInterfaceStatus() +"] My energy updating ... " + this.currentEnergy + "(" + this.getEnergyPercent() + "%)");
 
 		double simTime = SimClock.getTime();
 		double delta = simTime - this.lastUpdate;
@@ -195,6 +200,9 @@ public class EnergyModel implements ModuleCommunicationListener {
 			this.comBus = comBus;
 			this.comBus.addProperty(ENERGY_VALUE_ID, this.currentEnergy);
 			this.comBus.subscribe(ENERGY_VALUE_ID, this);
+			//add percent
+			this.comBus.addProperty(ENERGY_VALUE_PERCENT, this.getEnergyPercent());
+			this.comBus.subscribe(ENERGY_VALUE_PERCENT, this);
 		}
 
 		//if(iface.getHost().getAddress() == 0) this.comBus.updateProperty(NetworkInterface.INTERFACE_STATUS, 0);
@@ -228,7 +236,10 @@ public class EnergyModel implements ModuleCommunicationListener {
 	 * @param newValue The new energy value
 	 */
 	public void moduleValueChanged(String key, Object newValue) {
-		this.currentEnergy = (Double)newValue;
+		if(key == ENERGY_VALUE_ID)
+			this.currentEnergy = (Double)newValue;
+		else if(key == ENERGY_VALUE_PERCENT)
+			this.currentEnergyPercent = (Double)newValue;
 	}
 
 }
