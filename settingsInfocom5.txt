@@ -1,0 +1,154 @@
+#
+# Default settings for the simulation
+#
+
+## Scenario settings
+Scenario.name = infocom5-%%MovementModel.rngSeed%%
+Scenario.simulateConnections = false
+Scenario.updateInterval = 1
+# 274883s ~= 3,1 dias
+Scenario.endTime = 274884
+
+## Interface-specific settings:
+# type : which interface class the interface belongs to
+# For different types, the sub-parameters are interface-specific
+# For SimpleBroadcastInterface, the parameters are:
+# transmitSpeed : transmit speed of the interface (bytes per second)
+# transmitRange : range of the interface (meters)
+
+# "Bluetooth" interface for all nodes
+btInterface.type = SimpleBroadcastInterface
+# Transmit speed of 2 Mbps = 250kBps
+btInterface.transmitSpeed = 250k
+btInterface.transmitRange = 10
+btInterface.scanInterval = 0.1
+
+# High speed, long range, interface for group 4
+highspeedInterface.type = SimpleBroadcastInterface
+highspeedInterface.transmitSpeed = 10M
+highspeedInterface.transmitRange = 100
+highspeedInterface.scanInterval = 10
+
+# Define 6 different node groups
+Scenario.nrofHostGroups = 1
+
+## Group-specific settings:
+# groupID : Group's identifier. Used as the prefix of host names
+# nrofHosts: number of hosts in the group
+# movementModel: movement model of the hosts (valid class name from movement package)
+# waitTime: minimum and maximum wait times (seconds) after reaching destination
+# speed: minimum and maximum speeds (m/s) when moving on a path
+# bufferSize: size of the message buffer (bytes)
+# router: router used to route messages (valid class name from routing package)
+# activeTimes: Time intervals when the nodes in the group are active (start1, end1, start2, end2, ...)
+# msgTtl : TTL (minutes) of the messages created by this host group, default=infinite
+
+## Group and movement model specific settings
+# pois: Points Of Interest indexes and probabilities (poiIndex1, poiProb1, poiIndex2, poiProb2, ... )
+#       for ShortestPathMapBasedMovement
+# okMaps : which map nodes are OK for the group (map file indexes), default=all
+#          for all MapBasedMovent models
+# routeFile: route's file path - for MapRouteMovement
+# routeType: route's type - for MapRouteMovement
+
+
+# Common settings for all groups
+Group.movementModel = RandomWaypoint
+
+## Utilizacao do novo algoritmo de roteamento
+## Group.router = EpidemicRouter
+
+#############################
+######## SWORDFISH ##########
+#############################
+## Group.router = EpidemicRouter
+
+Group.bufferSize = 50M
+Group.waitTime = 0, 120
+# All nodes have the bluetooth interface
+Group.nrofInterfaces = 1
+Group.interface1 = btInterface
+# Walking speeds
+Group.speed = 0.5, 1.5
+# Message TTL of 300 minutes (5 hours)
+Group.msgTtl = 300
+
+Group.nrofHosts = 41
+
+
+# group1 (pedestrians) specific settings
+Group1.groupID = p
+
+## Message creation parameters
+# How many event generators
+Events.nrof = 2
+# Class of the first event generator
+Events1.class = MessageEventGenerator
+# (following settings are specific for the MessageEventGenerator class)
+# Creation interval in seconds (one new message every 25 to 35 seconds)
+Events1.interval = 60,300
+# Message sizes (500kB - 1MB)
+Events1.size = 100k,500k
+# range of message source/destination addresses
+Events1.hosts = 0,41
+
+# Message ID prefix
+Events1.prefix = MSG
+
+# Trace de mobilidade real
+Events2.class = ExternalEventsQueue
+#ExternalEventsQueue.nrofPreload = 1000
+Events2.filePath = traces/mobilidade_real_traces/sassy.csv
+
+## Movement model settings
+# seed for movement models' pseudo random number generator (default = 0)
+MovementModel.rngSeed = 1
+# World's size for Movement Models without implicit size (width, height; meters)
+MovementModel.worldSize = 450, 340
+# How long time to move hosts in the world before real simulation
+MovementModel.warmup = 0
+
+Group.initialEnergy = 4800
+Group.scanEnergy = 0.92
+Group.scanResponseEnergy = 1e-16
+Group.transmitEnergy = 0.08
+Group.receiveEnergy = 0.08
+# 28800 = 8 horas
+Group.rechargeEnergy = 28800
+
+Scenario.maxmsgscriadas = 1000000
+
+## PARA USAR O BUBBLE RAP
+Group.router = DecisionEngineRouter
+DecisionEngineRouter.decisionEngine = community.DistributedBubbleRap
+DecisionEngineRouter.communityDetectAlg = routing.community.KCliqueCommunityDetection
+DecisionEngineRouter.K = 5
+DecisionEngineRouter.familiarThreshold = 700
+DecisionEngineRouter.centralityAlg = routing.community.CWindowCentrality
+
+# how many reports to load
+Report.nrofReports = 10
+# length of the warm up period (simulated seconds)
+Report.warmup = 0
+# default directory of reports (can be overridden per Report with output setting)
+Report.reportDir = reports/Infocom5/
+# Report classes to load
+Report.report1 = MessageStatsReport
+Report.report2 = ContactTimesReport
+Report.report3 = CommunityDetectionReport
+Report.report4 = DeliveryCentralityReport
+Report.report5 = SimpleCommunityDetectionReport
+    SimpleCommunityDetectionReport.lambda = 0.5
+    SimpleCommunityDetectionReport.gamma = 0.5
+    SimpleCommunityDetectionReport.familiarThreshold = 0.5
+Report.report6 = TotalContactTimeReport
+Report.report7 = UniqueEncountersReport
+Report.report8 = EncountersVSUniqueEncountersReport
+Report.report9 = EnergyLevelReport
+    EnergyLevelReport.granularity = 3600
+Report.report10 = AdjacencyGraphvizReport
+    AdjacencyGraphvizReport.adjgraph = sassy
+
+## chaves aleatorias
+MovementModel.rngSeed = [2; 8372; 98092; 18293; 777; 14; 0; 813681; 71412; 1]
+
