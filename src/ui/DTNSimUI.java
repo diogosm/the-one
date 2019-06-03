@@ -132,6 +132,9 @@ public abstract class DTNSimUI {
 		for (Report r : this.reports) {
 			r.done();
 		}
+
+		//fecha os logs do LCC e betweenness
+		World.log();
 	}
 
 	/**
