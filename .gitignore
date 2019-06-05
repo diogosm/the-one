@@ -4,6 +4,7 @@
 # Simulation report files
 *reports*/*
 resultados/*
+!reports/makeStatistics.py
 
 # Javadocs
 *.html
