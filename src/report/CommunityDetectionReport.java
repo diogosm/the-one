@@ -11,6 +11,7 @@ import java.util.*;
 import core.*;
 import routing.*;
 import routing.community.CommunityDetectionEngine;
+import routing.community.DistributedBubbleRap;
 
 /**
  * <p>Reports the local communities at each node whenever the done() method is 
@@ -66,6 +67,18 @@ public class CommunityDetectionReport extends Report
 		// print each community and its size out to the file
 		for(Set<DTNHost> c : communities)
 			write("" + c.size() + ' ' + c);
+
+		write("Global Centrality");
+		for(DTNHost h : nodes){
+			MessageRouter r = h.getRouter();
+			if(!(r instanceof DecisionEngineRouter) )
+				continue;
+			RoutingDecisionEngine de = ((DecisionEngineRouter)r).getDecisionEngine();
+			if(!(de instanceof CommunityDetectionEngine))
+				continue;
+			DistributedBubbleRap bubble = (DistributedBubbleRap)de;
+			write(h.getAddress() + " " + bubble.getGlobalCentrality());
+		}
 		
 		super.done();
 	}
