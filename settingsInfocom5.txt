@@ -55,15 +55,7 @@ Scenario.nrofHostGroups = 1
 # Common settings for all groups
 Group.movementModel = RandomWaypoint
 
-## Utilizacao do novo algoritmo de roteamento
-## Group.router = EpidemicRouter
-
-#############################
-######## SWORDFISH ##########
-#############################
-## Group.router = EpidemicRouter
-
-Group.bufferSize = 50M
+Group.bufferSize = 50G
 Group.waitTime = 0, 120
 # All nodes have the bluetooth interface
 Group.nrofInterfaces = 1
@@ -71,7 +63,8 @@ Group.interface1 = btInterface
 # Walking speeds
 Group.speed = 0.5, 1.5
 # Message TTL of 300 minutes (5 hours)
-Group.msgTtl = 300
+# INFINITE TTL
+Group.msgTtl = 300000
 
 Group.nrofHosts = 41
 
@@ -86,7 +79,7 @@ Events.nrof = 2
 Events1.class = MessageEventGenerator
 # (following settings are specific for the MessageEventGenerator class)
 # Creation interval in seconds (one new message every 25 to 35 seconds)
-Events1.interval = 60,300
+Events1.interval = 5,5
 # Message sizes (500kB - 1MB)
 Events1.size = 100k,500k
 # range of message source/destination addresses
@@ -98,7 +91,7 @@ Events1.prefix = MSG
 # Trace de mobilidade real
 Events2.class = ExternalEventsQueue
 #ExternalEventsQueue.nrofPreload = 1000
-Events2.filePath = traces/mobilidade_real_traces/sassy.csv
+Events2.filePath = traces/mobilidade_real_traces/Haggle3-Infocom5.csv
 
 ## Movement model settings
 # seed for movement models' pseudo random number generator (default = 0)
@@ -108,15 +101,13 @@ MovementModel.worldSize = 450, 340
 # How long time to move hosts in the world before real simulation
 MovementModel.warmup = 0
 
-Group.initialEnergy = 4800
-Group.scanEnergy = 0.92
-Group.scanResponseEnergy = 1e-16
+Group.initialEnergy = 600
+Group.scanEnergy = 0.0
+Group.scanResponseEnergy = 0.002
 Group.transmitEnergy = 0.08
 Group.receiveEnergy = 0.08
 # 28800 = 8 horas
 Group.rechargeEnergy = 28800
-
-Scenario.maxmsgscriadas = 1000000
 
 ## PARA USAR O BUBBLE RAP
 Group.router = DecisionEngineRouter
@@ -125,6 +116,9 @@ DecisionEngineRouter.communityDetectAlg = routing.community.KCliqueCommunityDete
 DecisionEngineRouter.K = 5
 DecisionEngineRouter.familiarThreshold = 700
 DecisionEngineRouter.centralityAlg = routing.community.CWindowCentrality
+
+## Group.router = EpidemicRouter
+## Group.router = ProphetRouter
 
 # how many reports to load
 Report.nrofReports = 10
@@ -145,10 +139,11 @@ Report.report6 = TotalContactTimeReport
 Report.report7 = UniqueEncountersReport
 Report.report8 = EncountersVSUniqueEncountersReport
 Report.report9 = EnergyLevelReport
-    EnergyLevelReport.granularity = 3600
+    EnergyLevelReport.granularity = 1200
 Report.report10 = AdjacencyGraphvizReport
-    AdjacencyGraphvizReport.adjgraph = sassy
+    AdjacencyGraphvizReport.adjgraph = infocom5
 
 ## chaves aleatorias
 MovementModel.rngSeed = [2; 8372; 98092; 18293; 777; 14; 0; 813681; 71412; 1]
 
+Scenario.maxmsgscriadas = 100000
