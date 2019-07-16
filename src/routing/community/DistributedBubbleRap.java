@@ -13,6 +13,8 @@ import routing.DecisionEngineRouter;
 import routing.MessageRouter;
 import routing.RoutingDecisionEngine;
 
+import static java.lang.Thread.sleep;
+
 /**
  * <p>Implements the Distributed BubbleRap Routing Algorithm from Hui et al. 
  * 2008 (Bibtex record included for convenience). The paper is a bit fuzzy on 
@@ -232,13 +234,19 @@ public class DistributedBubbleRap
 		return community.isHostInCommunity(h);
 	}
 	
-	protected double getLocalCentrality()
+	public double getLocalCentrality()
 	{
 		return this.centrality.getLocalCentrality(connHistory, community);
 	}
-	
-	protected double getGlobalCentrality()
+
+	public double getGlobalCentrality()
 	{
+		if(this.centrality.getGlobalCentrality(connHistory) > 12.2) {
+			System.out.println(SimClock.getTime() + " - " +
+					this.centrality.getGlobalCentrality(connHistory));
+			try{sleep(5);}
+			catch (InterruptedException e){}
+		}
 		return this.centrality.getGlobalCentrality(connHistory);
 	}
 

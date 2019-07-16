@@ -289,6 +289,7 @@ public class DecisionEngineRouter extends ActiveRouter
 					i.remove();
 			}
 		}
+		super.changedConnection(con);
 	}
 	
 	protected void doExchange(Connection con, DTNHost otherHost)

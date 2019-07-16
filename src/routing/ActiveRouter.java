@@ -10,19 +10,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import core.*;
 import routing.util.EnergyModel;
 import routing.util.MessageTransferAcceptPolicy;
 import routing.util.RoutingInfo;
 import util.Tuple;
 
-import core.Connection;
-import core.DTNHost;
-import core.Message;
-import core.MessageListener;
-import core.NetworkInterface;
-import core.Settings;
-import core.SimClock;
-import core.Debug;
+import static core.SimScenario.NROF_HOSTS_S;
 
 /**
  * Superclass of active routers. Contains convenience methods (e.g.
@@ -49,6 +43,7 @@ public abstract class ActiveRouter extends MessageRouter {
 
 	private MessageTransferAcceptPolicy policy;
 	private EnergyModel energy;
+	public ArrayList<Integer> grafoAmizade;
 
 	/**
 	 * Constructor. Creates a new message router based on the settings in
@@ -85,6 +80,12 @@ public abstract class ActiveRouter extends MessageRouter {
 		super.init(host, mListeners);
 		this.sendingConnections = new ArrayList<Connection>(1);
 		this.lastTtlCheck = 0;
+
+		Settings s = new Settings("Group");
+		s.setSecondaryNamespace("Group");
+		int numeroNodes = s.getInt(NROF_HOSTS_S);
+		grafoAmizade = new ArrayList<Integer>();
+		for(int i = 0;i<numeroNodes;i++) grafoAmizade.add(i,0);
 	}
 
 	/**
@@ -97,6 +98,24 @@ public abstract class ActiveRouter extends MessageRouter {
 	public void changedConnection(Connection con) {
 		if (this.energy != null && con.isUp() && !con.isInitiator(getHost())) {
 			this.energy.reduceDiscoveryEnergy();
+		}
+
+		//add grafo pro LCC e betweenness
+		if (con.isUp()) { // new connection
+			DTNHost otherHost = con.getOtherNode(this.getHost());
+			int aux = grafoAmizade.get(otherHost.getAddress());
+			grafoAmizade.set(otherHost.getAddress(), aux+1);
+
+			//add no grafo global
+			World.addGrafo(this.getHost(), otherHost);
+
+		}
+		else {
+			DTNHost otherHost = con.getOtherNode(this.getHost());
+			int aux = grafoAmizade.get(otherHost.getAddress());
+			grafoAmizade.set(otherHost.getAddress(), aux-1);
+
+			//World.removeGrafo(this.getHost(), otherHost);
 		}
 	}
 
