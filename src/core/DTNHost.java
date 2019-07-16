@@ -11,6 +11,7 @@ import java.util.List;
 import movement.MovementModel;
 import movement.Path;
 import routing.MessageRouter;
+import routing.util.EnergyModel;
 import routing.util.RoutingInfo;
 import core.Debug;
 
@@ -333,6 +334,15 @@ public class DTNHost implements Comparable<DTNHost> {
 	 * @param simulateConnections Should network layer be updated too
 	 */
 	public void update(boolean simulateConnections) {
+		double energiaRestante = getComBus().getDouble(EnergyModel.ENERGY_VALUE_ID,1);
+		double energiaRestantePercent = getComBus().getDouble(EnergyModel.ENERGY_VALUE_PERCENT,1);
+		double simTime = SimClock.getTime();
+
+		//System.out.println("Energia restante:" + energiaRestante + ", status:" + getComBus().getInt(NetworkInterface.INTERFACE_STATUS,1));
+		if(energiaRestante <= 0){
+			//@TODO recarrega usando timing pra cada nova recarga
+			//getComBus().updateProperty(EnergyModel.ENERGY_VALUE_ID, 1000.0);
+		}
 		if (!isRadioActive()) {
 			// Make sure inactive nodes don't have connections
 			tearDownAllConnections();
@@ -345,6 +355,10 @@ public class DTNHost implements Comparable<DTNHost> {
 			}
 		}
 		this.router.update();
+
+		if(simTime%600.0 <= 1e-8 || (simTime <= 2 && simTime > 1)){
+			//Debug.p(simTime + ": [" + this.getAddress() + "] Energia restante: " + energiaRestante + "(" + energiaRestantePercent + "%)");
+		}
 	}
 
 	/**
