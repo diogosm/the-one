@@ -17,6 +17,7 @@ import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.EdgeType;
 import core.Graph_Algos;
+import routing.util.EnergyModel;
 //import org.graphstream.graph.*;
 //import org.graphstream.graph.implementations.SingleGraph;
 
@@ -87,6 +88,7 @@ public class World {
 	public static double z;
 	public static double p;
 	public static List<DTNHost> hostsAux;
+	public static double tempoGambi;
 
 	/**
 	 * Constructor.
@@ -147,6 +149,7 @@ public class World {
 		p = 0.02;
 		z = (double)hosts.get(0).getInterfaces().get(0).getTransmitRange();
 		hostsAux = hosts;
+		tempoGambi = 0.0;
 
 		//Debug.p("p = " + p);
 		//Debug.p("z = " + z);
@@ -221,7 +224,7 @@ public class World {
 	 * this method is called and after one update interval.
 	 */
 	public void update () {
-		log();
+		//log();
 		double runUntil = SimClock.getTime() + this.updateInterval;
 
 		setNextEventQueue();
@@ -244,6 +247,7 @@ public class World {
 		for (UpdateListener ul : this.updateListeners) {
 			ul.updated(this.hosts);
 		}
+		tempoGambi = this.simClock.getTime();
 	}
 
 	/**
@@ -265,12 +269,34 @@ public class World {
 				"Nrof hosts has changed unexpectedly";
 			Random rng = new Random(SimClock.getIntTime());
 			Collections.shuffle(this.updateOrder, rng);
+			//overall energy
+			Double energySumPercent = 0.0;
+			Double energySum = 0.0;
+			Double media = 0D;
+			Double desvioPadrao = 0D;
 			for (int i=0, n = hosts.size();i < n; i++) {
 				if (this.isCancelled) {
 					break;
 				}
 				this.updateOrder.get(i).update(simulateConnections);
+				double nodeEnergyPercent = this.updateOrder.get(i).getComBus().getDouble(EnergyModel.ENERGY_VALUE_PERCENT,1);
+				double nodeEnergy = this.updateOrder.get(i).getComBus().getDouble(EnergyModel.ENERGY_VALUE_ID,1);
+				energySumPercent += nodeEnergyPercent;
+				energySum += nodeEnergy;	//em unidades
 			}
+			media = (energySum/(double)hosts.size());
+			for (int i=0, n = hosts.size();i < n; i++) {
+				if (this.isCancelled) {
+					break;
+				}
+				this.updateOrder.get(i).update(simulateConnections);
+				//em unidades
+				double nodeEnergy = this.updateOrder.get(i).getComBus().getDouble(EnergyModel.ENERGY_VALUE_ID,1);
+				double aux = nodeEnergy - media;
+				desvioPadrao += aux * aux;
+			}
+			desvioPadrao = Math.sqrt( desvioPadrao / (hosts.size()-1) );
+			//Debug.p(SimClock.getTime() + ": Overall Energy(%) = " + (energySumPercent/(double)hosts.size()) + " SD(unid.) = " + desvioPadrao);
 		}
 
 		if (simulateConOnce && simulateConnections) {
@@ -611,9 +637,9 @@ public class World {
 	}
 
 	//funcao pra geracao de logs pros graficos
-	private void log(){
-		if(true) return;
-		double tempo = simClock.getTime();
+	public static void log(){
+		//if(true) return;
+		double tempo = tempoGambi;
 		if(B_i.size() <= 0){
 			//zera logs
 			try{
