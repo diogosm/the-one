@@ -5,6 +5,7 @@
 *reports*/*
 resultados/*
 !reports/makeStatistics.py
+!reports/*.ipynb
 
 # Javadocs
 *.html
